@@ -1,0 +1,18 @@
+{
+    "description": "A kickstarter for Neos to create Sites, Documents and Contents",
+    "type": "neos-package",
+    "name": "flowpack/sitekickstarter",
+    "require": {
+        "neos/neos": "^7.2 || dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flowpack\\SiteKickstarter\\": "Classes/"
+        }
+    },
+    "extra": {
+        "neos": {
+            "package-key": "Flowpack.SiteKickstarter"
+        }
+    }
+}

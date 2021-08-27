@@ -1,0 +1,76 @@
+Flowpack:
+  SiteKickstarter:
+    fusionPropertyAccesingTemplates:
+      default: '${q(node).property("__name__")}'
+
+    fusionPropertyRenderingAfxTemplates:
+      default: '{props.__name__}'
+      asset: |
+        <a @if.has={props.__name__}>
+          <Neos.Neos:ResourceUri resource={props.__name__.resource} @path="attributes.href" />
+        </a>
+      assets: |
+        <ul @if.has={props.__name__}>
+            <Neos.Fusion:Loop items={props.__name__} itemName="asset">
+                <li>
+                    <Neos.Neos:ResourceUri resource={props.__name__.resource} @path="attributes.href" />
+                </li>
+            </Neos.Fusion:Loop>
+        </ul>
+      image: |
+        <Neos.Neos:ImageTag asset={props.__name__} maximumWidth="300" @if.has={props.__name__} />
+      images: |
+        <ul @if.has={props.__name__}>
+            <Neos.Fusion:Loop items={props.__name__} itemName="image">
+                <li>
+                    <Neos.Neos:ImageTag asset={image} maximumWidth="300" />
+                </li>
+            </Neos.Fusion:Loop>
+        </ul>
+      reference: |
+        <Neos.Neos:NodeLink node={props.__name__} @if.has={props.__name__}>
+            {props.__name__.label}
+        </Neos.Neos:NodeLink>'
+      references: |
+        <ul @if.has={props.__name__}>
+            <Neos.Fusion:Loop items={props.__name__} itemName="reference">
+                <li>
+                    <Neos.Neos:NodeLink node={reference}>{reference.label}</Neos.Neos:NodeLink>
+                </li>
+            </Neos.Fusion:Loop>
+        </ul>
+
+    nodeTypePropertyTemplates:
+      default: |
+        type: __type__
+        ui:
+          label: __name__
+          inspector:
+            group: __group__
+      plaintext: |
+        type: string
+        ui:
+          inlineEditable: true
+      richtext: |
+        type: string
+        ui:
+          inlineEditable: true
+      image: |
+        type: 'Neos\Media\Domain\Model\ImageInterface'
+        ui:
+          label: __name__
+          inspector:
+            group: __group__
+      asset: |
+        type: 'Neos\Media\Domain\Model\Asset'
+        ui:
+          label: __name__
+          inspector:
+            group: __group__
+      assets: |
+        type: 'array<Neos\Media\Domain\Model\Asset>'
+        ui:
+          label: __name__
+          inspector:
+            group: __group__
+

@@ -19,14 +19,6 @@ Flowpack:
         </ul>
       image: |
         <Neos.Neos:ImageTag asset={props.__name__} maximumWidth="300" @if.has={props.__name__} />
-      images: |
-        <ul @if.has={props.__name__}>
-            <Neos.Fusion:Loop items={props.__name__} itemName="image">
-                <li>
-                    <Neos.Neos:ImageTag asset={image} maximumWidth="300" />
-                </li>
-            </Neos.Fusion:Loop>
-        </ul>
       reference: |
         <Neos.Neos:NodeLink node={props.__name__} @if.has={props.__name__}>
             {props.__name__.label}

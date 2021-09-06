@@ -55,12 +55,11 @@ abstract class AbstractFusionGenerator
      */
     protected function createAfxRenderer(NodeType $nodeType): string
     {
-        $name = $nodeType->getFullName();
         $properties = $this->indent($this->createPropertiesList($nodeType));
 
         return <<<EOT
             <div>
-                <h4>$name</h4>
+                <h4>{$nodeType->getFullName()}</h4>
                 $properties
             </div>
             EOT;
@@ -81,11 +80,9 @@ abstract class AbstractFusionGenerator
             $properties .= $this->createPropertyRenderer($nodeProperty);
         }
 
-        $properties = $this->indent($properties);
-
         return <<<EOT
             <dl>
-                $properties
+                {$this->indent($properties)}
             </dl>
             EOT;
     }
@@ -97,12 +94,10 @@ abstract class AbstractFusionGenerator
     protected function createPropertyRenderer(NodeProperty $nodeProperty): string
     {
         $renderingTemplate = $this->propertyRenderingAfxTemplates[$nodeProperty->getPreset()] ?? $this->propertyRenderingAfxTemplates['default'];
-        $name = $nodeProperty->getName();
-        $propRenderer = $this->indent(str_replace('__name__', $nodeProperty->getName(), trim($renderingTemplate)));
         return <<<EOT
-            <dt>$name</dt>
+            <dt>{$nodeProperty->getName()}</dt>
             <dd>
-                $propRenderer
+                {$this->indent(str_replace('__name__', $nodeProperty->getName(), trim($renderingTemplate)))}
             </dd>
             EOT;
     }

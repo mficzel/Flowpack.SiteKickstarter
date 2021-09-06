@@ -96,15 +96,24 @@ class NodeType
 
     public function getFusionFilePath(): string
     {
-        return $this->package->getPackagePath()
+        return $this->getLocalPackagePath()
             . 'NodeTypes/' . implode('/', $this->nameParts) . '/'
             . $this->getShortName() . '.fusion';
     }
 
     public function getYamlFilePath(): string
     {
-        return $this->package->getPackagePath()
+        return $this->getLocalPackagePath()
             . 'NodeTypes/' . implode('/', $this->nameParts) . '/'
             . $this->getShortName() . '.yaml';
+    }
+
+    public function getLocalPackagePath(): string
+    {
+        $path = $this->package->getPackagePath();
+        if (substr($path, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
+            $path = substr($path, strlen(FLOW_PATH_ROOT));
+        }
+        return $path;
     }
 }

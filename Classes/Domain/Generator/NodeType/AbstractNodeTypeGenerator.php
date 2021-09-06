@@ -67,9 +67,21 @@ abstract class AbstractNodeTypeGenerator
             }
         }
 
+        $yaml = Yaml::dump([$nodeType->getFullName() => $nodeTypeConfiguration], 99);
+        $nodeTypeConfigurationAsString = <<<EOT
+            #
+            # Definition of NodeType {$nodeType->getFullName()}
+            # that is rendered by {$nodeType->getFusionFilePath()}
+            #
+            # @see https://docs.neos.io/cms/manual/content-repository/nodetype-definition
+            # @see https://docs.neos.io/cms/manual/content-repository/nodetype-properties
+            #
+            {$yaml}
+            EOT;
+
         return new WholeFileModification(
             $nodeType->getYamlFilePath(),
-            Yaml::dump([$nodeType->getFullName() => $nodeTypeConfiguration], 99)
+            $nodeTypeConfigurationAsString
         );
     }
 }

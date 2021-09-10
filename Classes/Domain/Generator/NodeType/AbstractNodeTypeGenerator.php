@@ -3,17 +3,19 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\NodeType;
 
+use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeNameSpecification;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
-use Flowpack\SiteKickstarter\Domain\Modification\WholeFileModification;
+use Flowpack\SiteKickstarter\Domain\Modification\CreateFileModification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeSpecification;
-
+use Neos\Flow\Package\FlowPackageInterface;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class AbstractNodeTypeGenerator
 {
+
     /**
      * @var array
      * @Flow\InjectConfiguration(path="nodeTypePropertyTemplates")
@@ -27,21 +29,23 @@ abstract class AbstractNodeTypeGenerator
     protected $childNodeTemplates;
 
     /**
-     * @param NodeTypeSpecification $nodeType
-     * @return array
-     */
-    abstract function getSuperTypes(NodeTypeSpecification $nodeType): array;
-
-    /**
+     * @param FlowPackageInterface $package
      * @param NodeTypeSpecification $nodeType
      * @return ModificationIterface
      */
-    public function generate(NodeTypeSpecification $nodeType): ModificationIterface
+    public function generate(FlowPackageInterface $package, NodeTypeSpecification $nodeType): ModificationIterface
     {
         $nodeTypeConfiguration = [
-            'superTypes' => $this->getSuperTypes($nodeType),
+            'superTypes' => array_reduce(
+                    iterator_to_array($nodeType->getSuperTypes()),
+                    function(array $carry, NodeTypeNameSpecification $superType) {
+                        $carry[$superType->getFullName()] = true;
+                        return $carry;
+                    },
+                    []
+                ),
             'ui' => [
-                'label' => $nodeType->getShortName(),
+                'label' => $nodeType->getName()->getNickname(),
                 'icon' => 'rocket'
             ]
         ];
@@ -90,11 +94,13 @@ abstract class AbstractNodeTypeGenerator
             }
         }
 
-        $yaml = Yaml::dump([$nodeType->getFullName() => $nodeTypeConfiguration], 99);
+        $yaml = Yaml::dump([$nodeType->getName()->getFullName() => $nodeTypeConfiguration], 99);
+        $filePath = $this->getFilePath($package, $nodeType);
+
         $nodeTypeConfigurationAsString = <<<EOT
             #
-            # Definition of NodeType {$nodeType->getFullName()}
-            # that is rendered by {$nodeType->getFusionFilePath()}
+            # Definition of NodeType {$nodeType->getName()->getFullName()}
+            # that is rendered by {$filePath}.fusion
             #
             # @see https://docs.neos.io/cms/manual/content-repository/nodetype-definition
             # @see https://docs.neos.io/cms/manual/content-repository/nodetype-properties
@@ -102,9 +108,27 @@ abstract class AbstractNodeTypeGenerator
             {$yaml}
             EOT;
 
-        return new WholeFileModification(
-            $nodeType->getYamlFilePath(),
+
+        return new CreateFileModification(
+            $filePath.'.yaml',
             $nodeTypeConfigurationAsString
         );
+    }
+
+    /**
+     * @param FlowPackageInterface $package
+     * @param NodeTypeSpecification $nodeType
+     * @return string
+     */
+    protected function getFilePath(FlowPackageInterface $package, NodeTypeSpecification $nodeType): string
+    {
+        $path = $package->getPackagePath();
+        if (substr($path, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
+            $path = substr($path, strlen(FLOW_PATH_ROOT));
+        }
+
+        return $path
+            . 'NodeTypes/' . implode('/', $nodeType->getName()->getLocalNameParts()) . '/'
+            . $nodeType->getName()->getNickname();
     }
 }

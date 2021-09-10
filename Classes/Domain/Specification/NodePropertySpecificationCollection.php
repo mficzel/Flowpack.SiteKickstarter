@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
 
-use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
 use Neos\Flow\Annotations as Flow;
-
 
 /**
  * @Flow\Proxy(false)

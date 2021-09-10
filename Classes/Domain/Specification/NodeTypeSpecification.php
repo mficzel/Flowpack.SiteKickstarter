@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
 
-use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeCollectionSpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecificationCollection;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Package\FlowPackageInterface;
 
@@ -14,19 +12,14 @@ use Neos\Flow\Package\FlowPackageInterface;
 class NodeTypeSpecification
 {
     /**
-     * @var FlowPackageInterface
-     */
-    protected $package;
-
-    /**
-     * @var string
+     * @var NodeTypeNameSpecification
      */
     protected $name;
 
     /**
-     * @var string[]
+     * @var NodeTypeNameSpecificationCollection
      */
-    protected $nameParts;
+    protected $superTypes;
 
     /**
      * @var NodePropertySpecificationCollection
@@ -39,49 +32,56 @@ class NodeTypeSpecification
     protected $childNodes;
 
     /**
+     * @var bool
+     */
+    protected $abstract;
+
+    /**
      * NodeType constructor.
-     * @param FlowPackageInterface $package
-     * @param string $name
+     * @param NodeTypeNameSpecification $name
+     * @param NodeTypeNameSpecificationCollection $superTypes
      * @param ChildNodeCollectionSpecification $childNodes
      * @param NodePropertySpecificationCollection $nodeProperties
      */
-    private function __construct(FlowPackageInterface $package, string $name, ChildNodeCollectionSpecification $childNodes, NodePropertySpecificationCollection $nodeProperties)
+    private function __construct(NodeTypeNameSpecification $name, NodeTypeNameSpecificationCollection $superTypes, ChildNodeCollectionSpecification $childNodes, NodePropertySpecificationCollection $nodeProperties, bool $abstract)
     {
-        $this->package = $package;
         $this->name = $name;
-        $this->nameParts = explode('.', $name);
+        $this->superTypes = $superTypes;
         $this->childNodes = $childNodes;
         $this->nodeProperties = $nodeProperties;
+        $this->abstract = $abstract;
     }
 
     /**
-     * @param FlowPackageInterface $package
      * @param string $name
-     * @param array $childnodeCliArguments
-     * @param array $propertCliArguments
+     * @param string[] $superTypes
+     * @param string[] $childnodeCliArguments
+     * @param string[] $propertCliArguments
+     * @param bool $abstract
      * @return static
      */
-    public static function fromCliArguments(FlowPackageInterface $package, string $name, array $childnodeCliArguments, array $propertCliArguments):self {
+    public static function fromCliArguments(string $name, array $superTypes, array $childnodeCliArguments, array $propertCliArguments, bool $abstract = false):self {
+        $nodeTypeName = NodeTypeNameSpecification::fromString($name);
+        $nodeSuperTypes = NodeTypeNameSpecificationCollection::fromStringArray($superTypes);
         $childNodes = ChildNodeCollectionSpecification::fromCliArguments($childnodeCliArguments);
         $properties = NodePropertySpecificationCollection::fromCliArguments($propertCliArguments);
-
-        return new static($package, $name, $childNodes, $properties);
+        return new static($nodeTypeName, $nodeSuperTypes,$childNodes, $properties, $abstract);
     }
 
     /**
-     * @return FlowPackageInterface
+     * @return NodeTypeNameSpecification
      */
-    public function getPackage(): FlowPackageInterface
-    {
-        return $this->package;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
+    public function getName(): NodeTypeNameSpecification
     {
         return $this->name;
+    }
+
+    /**
+     * @return NodeTypeNameSpecificationCollection
+     */
+    public function getSuperTypes(): NodeTypeNameSpecificationCollection
+    {
+        return $this->superTypes;
     }
 
     /**
@@ -101,41 +101,10 @@ class NodeTypeSpecification
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getFullName(): string
+    public function isAbstract(): bool
     {
-        return $this->package->getPackageKey() . ':' . implode('.', $this->nameParts);
-    }
-
-    /**
-     * @return string
-     */
-    public function getShortName(): string
-    {
-        return end($this->nameParts);
-    }
-
-    public function getFusionFilePath(): string
-    {
-        return $this->getLocalPackagePath()
-            . 'NodeTypes/' . implode('/', $this->nameParts) . '/'
-            . $this->getShortName() . '.fusion';
-    }
-
-    public function getYamlFilePath(): string
-    {
-        return $this->getLocalPackagePath()
-            . 'NodeTypes/' . implode('/', $this->nameParts) . '/'
-            . $this->getShortName() . '.yaml';
-    }
-
-    public function getLocalPackagePath(): string
-    {
-        $path = $this->package->getPackagePath();
-        if (substr($path, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
-            $path = substr($path, strlen(FLOW_PATH_ROOT));
-        }
-        return $path;
+        return $this->abstract;
     }
 }

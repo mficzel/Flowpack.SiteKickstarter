@@ -7,8 +7,5 @@ use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 
 class DocumentNodeTypeGenerator extends AbstractNodeTypeGenerator
 {
-    function getSuperTypes(NodeTypeSpecification $nodeType): array
-    {
-        return ['Neos.Neos:Document'];
-    }
+
 }

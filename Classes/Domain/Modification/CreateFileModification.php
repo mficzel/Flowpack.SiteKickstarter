@@ -5,7 +5,7 @@ namespace Flowpack\SiteKickstarter\Domain\Modification;
 
 use Neos\Utility\Files;
 
-class WholeFileModification implements ModificationIterface
+class CreateFileModification implements ModificationIterface
 {
     /**
      * @var string

@@ -5,13 +5,13 @@ namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
 
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
-use Flowpack\SiteKickstarter\Domain\Modification\WholeFileModification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecificationCollection;
+use Neos\Flow\Package\FlowPackageInterface;
 
 abstract class AbstractFusionGenerator
 {
+
     /**
      * @var array
      * @Flow\InjectConfiguration(path="fusionPropertyAccesingTemplates")
@@ -25,10 +25,11 @@ abstract class AbstractFusionGenerator
     protected $propertyRenderingAfxTemplates;
 
     /**
+     * @param FlowPackageInterface $package
      * @param NodeTypeSpecification $nodeType
      * @return ModificationIterface
      */
-    abstract public function generate(NodeTypeSpecification $nodeType): ModificationIterface;
+    abstract public function generate(FlowPackageInterface $package, NodeTypeSpecification $nodeType): ModificationIterface;
 
     /**
      * @param NodeTypeSpecification $nodeType
@@ -59,7 +60,7 @@ abstract class AbstractFusionGenerator
 
         return <<<EOT
             <div>
-                <h4>{$nodeType->getFullName()}</h4>
+                <h4>{$nodeType->getName()->getFullName()}</h4>
                 $properties
             </div>
             EOT;
@@ -111,6 +112,23 @@ abstract class AbstractFusionGenerator
     {
         $indent = str_pad('', $indentation);
         return implode(PHP_EOL . $indent, explode(PHP_EOL, $text));
+    }
+
+    /**
+     * @param FlowPackageInterface $package
+     * @param NodeTypeSpecification $nodeType
+     * @return string
+     */
+    protected function getFilePath(FlowPackageInterface $package, NodeTypeSpecification $nodeType): string
+    {
+        $path = $package->getPackagePath();
+        if (substr($path, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
+            $path = substr($path, strlen(FLOW_PATH_ROOT));
+        }
+
+        return $path
+            . 'NodeTypes/' . implode('/', $nodeType->getName()->getLocalNameParts()) . '/'
+            . $nodeType->getName()->getNickname();
     }
 
 }

@@ -17,10 +17,16 @@ class CreateFileModification implements ModificationIterface
      */
     protected $content;
 
+    /**
+     * @var bool
+     */
+    protected $fileExists;
+
     public function __construct(string $filePath, string $content)
     {
         $this->filePath = $filePath;
         $this->content = $content;
+        $this->fileExists = (file_exists($this->filePath));
     }
 
     /**
@@ -28,7 +34,7 @@ class CreateFileModification implements ModificationIterface
      */
     public function isForceRequired(): bool
     {
-        return (file_exists($this->filePath));
+        return $this->fileExists;
     }
 
     /**
@@ -41,7 +47,7 @@ class CreateFileModification implements ModificationIterface
             $path = substr($path, strlen(FLOW_PATH_ROOT));
         }
 
-        if (file_exists($this->filePath)) {
+        if ($this->fileExists) {
             return sprintf("Overwrite file %s", $path);
         } else {
             return sprintf("Create file %s", $path);

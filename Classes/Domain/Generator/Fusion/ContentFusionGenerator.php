@@ -1,20 +1,19 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
 
-
-use Flowpack\SiteKickstarter\Domain\Model\NodeType;
+use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 use Flowpack\SiteKickstarter\Domain\Modification\WholeFileModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 
 class ContentFusionGenerator extends AbstractFusionGenerator
 {
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeSpecification $nodeType
      * @return ModificationIterface
      */
-    public function generate(NodeType $nodeType): ModificationIterface
+    public function generate(NodeTypeSpecification $nodeType): ModificationIterface
     {
         $name = $nodeType->getFullName();
 

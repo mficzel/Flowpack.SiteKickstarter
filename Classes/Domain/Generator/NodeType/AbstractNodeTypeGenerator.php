@@ -6,9 +6,9 @@ namespace Flowpack\SiteKickstarter\Domain\Generator\NodeType;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Modification\WholeFileModification;
-use Flowpack\SiteKickstarter\Domain\Model\NodeType;
-use Flowpack\SiteKickstarter\Domain\Model\NodeProperty;
-use Flowpack\SiteKickstarter\Domain\Model\NodePropertyCollection;
+use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeSpecification;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -21,16 +21,22 @@ abstract class AbstractNodeTypeGenerator
     protected $propertyTemplates;
 
     /**
-     * @param NodeType $nodeType
-     * @return array
+     * @var array
+     * @Flow\InjectConfiguration(path="nodeTypeChildNodeTemplates")
      */
-    abstract function getSuperTypes(NodeType $nodeType): array;
+    protected $childNodeTemplates;
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeSpecification $nodeType
+     * @return array
+     */
+    abstract function getSuperTypes(NodeTypeSpecification $nodeType): array;
+
+    /**
+     * @param NodeTypeSpecification $nodeType
      * @return ModificationIterface
      */
-    public function generate(NodeType $nodeType): ModificationIterface
+    public function generate(NodeTypeSpecification $nodeType): ModificationIterface
     {
         $nodeTypeConfiguration = [
             'superTypes' => $this->getSuperTypes($nodeType),
@@ -39,6 +45,23 @@ abstract class AbstractNodeTypeGenerator
                 'icon' => 'rocket'
             ]
         ];
+
+        if (!$nodeType->getChildNodes()->isEmpty()) {
+
+            /**
+             * @var ChildNodeSpecification $childNode
+             */
+            foreach ($nodeType->getChildNodes() as $childNode) {
+                $propertyTemplate = $this->childNodeTemplates[$childNode->getPreset()];
+                $nodeTypeConfiguration['childNodes'][$childNode->getName()] = Yaml::parse(
+                    str_replace(
+                        ['__name__', '__preset__', '__group__'],
+                        [$childNode->getName(), $childNode->getPreset(), 'default'],
+                        $propertyTemplate
+                    )
+                );
+            }
+        }
 
         if (!$nodeType->getNodeProperties()->isEmpty()) {
 
@@ -53,13 +76,13 @@ abstract class AbstractNodeTypeGenerator
             ];
 
             /**
-             * @var NodeProperty $nodeProperty
+             * @var NodePropertySpecification $nodeProperty
              */
             foreach ($nodeType->getNodeProperties() as $nodeProperty) {
                 $propertyTemplate = $this->propertyTemplates[$nodeProperty->getPreset()] ?? $this->propertyTemplates['default'];
                 $nodeTypeConfiguration['properties'][$nodeProperty->getName()] = Yaml::parse(
                     str_replace(
-                        ['__name__', '__type__', '__group__'],
+                        ['__name__', '__preset__', '__group__'],
                         [$nodeProperty->getName(), $nodeProperty->getPreset(), 'default'],
                         $propertyTemplate
                     )

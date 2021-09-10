@@ -1,5 +1,20 @@
 Flowpack:
   SiteKickstarter:
+
+    nodeTypeChildNodeTemplates:
+      content: |
+        type: Neos.Neos:ContentCollection
+
+#    childNodeAccessorTemplate:
+#
+#      default: | Neos.Neos:ContentCase {
+#          @context.node = ${q(node).children("__name__")}
+#        }
+#
+#      content: | Neos.Neos:ContentCollection {
+#          path = "__name__"
+#        }
+
     fusionPropertyAccesingTemplates:
       default: '${q(node).property("__name__")}'
 
@@ -34,7 +49,7 @@ Flowpack:
 
     nodeTypePropertyTemplates:
       default: |
-        type: __type__
+        type: __preset__
         ui:
           label: __name__
           inspector:

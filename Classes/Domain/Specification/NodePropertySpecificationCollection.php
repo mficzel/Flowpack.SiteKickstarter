@@ -1,25 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace Flowpack\SiteKickstarter\Domain\Model;
+namespace Flowpack\SiteKickstarter\Domain\Specification;
 
+use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
 use Neos\Flow\Annotations as Flow;
 
 
 /**
  * @Flow\Proxy(false)
  */
-class NodePropertyCollection implements \IteratorAggregate
+class NodePropertySpecificationCollection implements \IteratorAggregate
 {
     /**
-     * @var array<int, NodeProperty>
+     * @var array<int, NodePropertySpecification>
      */
     protected $nodeProperties;
 
     /**
-     * @param NodeProperty ...$nodeProperties
+     * @param NodePropertySpecification ...$nodeProperties
      */
-    private function __construct(NodeProperty ...$nodeProperties)
+    private function __construct(NodePropertySpecification ...$nodeProperties)
     {
         $this->nodeProperties = $nodeProperties;
     }
@@ -32,7 +33,7 @@ class NodePropertyCollection implements \IteratorAggregate
     {
         return new static(...array_map(
             function(string $cliArgument) {
-                return NodeProperty::fromCliArgument($cliArgument);
+                return NodePropertySpecification::fromCliArgument($cliArgument);
             },
             $cliArguments
         ));
@@ -47,7 +48,7 @@ class NodePropertyCollection implements \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator<int, NodeProperty>
+     * @return \ArrayIterator<int, NodePropertySpecification>
      */
     public function getIterator()
     {

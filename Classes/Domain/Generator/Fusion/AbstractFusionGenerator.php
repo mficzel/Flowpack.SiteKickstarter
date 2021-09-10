@@ -6,9 +6,9 @@ namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Modification\WholeFileModification;
-use Flowpack\SiteKickstarter\Domain\Model\NodeType;
-use Flowpack\SiteKickstarter\Domain\Model\NodeProperty;
-use Flowpack\SiteKickstarter\Domain\Model\NodePropertyCollection;
+use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecificationCollection;
 
 abstract class AbstractFusionGenerator
 {
@@ -25,21 +25,21 @@ abstract class AbstractFusionGenerator
     protected $propertyRenderingAfxTemplates;
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeSpecification $nodeType
      * @return ModificationIterface
      */
-    abstract public function generate(NodeType $nodeType): ModificationIterface;
+    abstract public function generate(NodeTypeSpecification $nodeType): ModificationIterface;
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeSpecification $nodeType
      * @return array
      */
-    protected function createPropertyAccessors(NodeType $nodeType): string
+    protected function createPropertyAccessors(NodeTypeSpecification $nodeType): string
     {
         $properties = [];
 
         /**
-         * @var NodeProperty $nodeProperty
+         * @var NodePropertySpecification $nodeProperty
          */
         foreach ($nodeType->getNodeProperties() as $nodeProperty) {
             $renderingTemplate = $this->propertyAccesingTemplates[$nodeProperty->getPreset()] ?? $this->propertyAccesingTemplates['default'];
@@ -50,10 +50,10 @@ abstract class AbstractFusionGenerator
     }
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeSpecification $nodeType
      * @return string
      */
-    protected function createAfxRenderer(NodeType $nodeType): string
+    protected function createAfxRenderer(NodeTypeSpecification $nodeType): string
     {
         $properties = $this->indent($this->createPropertiesList($nodeType));
 
@@ -66,15 +66,15 @@ abstract class AbstractFusionGenerator
     }
 
     /**
-     * @param NodeType $nodeType
+     * @param NodeTypeSpecification $nodeType
      * @return string
      */
-    protected function createPropertiesList(NodeType $nodeType): string
+    protected function createPropertiesList(NodeTypeSpecification $nodeType): string
     {
         $properties = '';
 
         /**
-         * @var NodeProperty $nodeProperty
+         * @var NodePropertySpecification $nodeProperty
          */
         foreach ($nodeType->getNodeProperties() as $nodeProperty) {
             $properties .= $this->createPropertyRenderer($nodeProperty);
@@ -88,10 +88,10 @@ abstract class AbstractFusionGenerator
     }
 
     /**
-     * @param NodeProperty $nodeProperty
+     * @param NodePropertySpecification $nodeProperty
      * @return string
      */
-    protected function createPropertyRenderer(NodeProperty $nodeProperty): string
+    protected function createPropertyRenderer(NodePropertySpecification $nodeProperty): string
     {
         $renderingTemplate = $this->propertyRenderingAfxTemplates[$nodeProperty->getPreset()] ?? $this->propertyRenderingAfxTemplates['default'];
         return <<<EOT

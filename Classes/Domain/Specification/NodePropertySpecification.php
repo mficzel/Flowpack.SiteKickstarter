@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Flowpack\SiteKickstarter\Domain\Model;
+namespace Flowpack\SiteKickstarter\Domain\Specification;
 
 use Neos\Flow\Annotations as Flow;
 
 /**
  * @Flow\Proxy(false)
  */
-class NodeProperty
+class NodePropertySpecification
 {
     /**
      * @var string

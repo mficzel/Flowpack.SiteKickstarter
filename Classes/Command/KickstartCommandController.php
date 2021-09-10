@@ -7,6 +7,7 @@ namespace Flowpack\SiteKickstarter\Command;
  * This file is part of the Flowpack.SiteKickstarter package.
  */
 
+use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeCollectionSpecification;
 use Flowpack\SiteKickstarter\Domain\Modification\FileContentModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Neos\Flow\Annotations as Flow;
@@ -19,8 +20,8 @@ use Flowpack\SiteKickstarter\Domain\Generator\Fusion\DocumentFusionGenerator;
 use Flowpack\SiteKickstarter\Domain\Generator\NodeType\ContentNodeTypeGenerator;
 use Flowpack\SiteKickstarter\Domain\Generator\NodeType\DocumentNodeTypeGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationCollection;
-use Flowpack\SiteKickstarter\Domain\Model\NodePropertyCollection;
-use Flowpack\SiteKickstarter\Domain\Model\NodeType;
+use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecificationCollection;
+use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 
 /**
  * @Flow\Scope("singleton")
@@ -60,69 +61,83 @@ class KickstartCommandController extends CommandController
 
     /**
      * @param string $packageKey
-     * @param string $nodeType
-     * @param bool $force
-     * @throws \Neos\Flow\Cli\Exception\StopCommandException
      */
-    public function documentCommand(string $packageKey, string $nodeType, bool $force = false) {
+    public function sitepackageCommand(string $packageKey)
+    {
+        $this->packageManager->createPackage($packageKey, [
+            'type' => 'neos-site',
+            "require" => [
+                "neos/neos" => "*"
+            ],
+            "suggest" => [
+                "neos/seo" => "*"
+            ]
+        ]);
+
+        $this->outputLine(sprintf("Package %s was sucessfully created", $packageKey));
+
         $package = $this->getFlowPackage($packageKey);
 
-        $nodeProperties = NodePropertyCollection::fromCliArguments($this->request->getExceedingArguments());
-        $nodeType = NodeType::create($package , 'Document.' . $nodeType, $nodeProperties);
-
         $modifications = new ModificationCollection(
-            $this->documentFusionGenerator->generate($nodeType),
-            $this->documentNodeTypeGenerator->generate($nodeType),
-            $this->createDefaultIncludeModifications($package)
+        $this->prepareDocumentNodeTypeModifications(
+                $package,
+                'Page',
+                ['main:content'],
+                []
+            ),
+           $this->prepareDocumentNodeTypeModifications(
+                $package,
+                'HomePage',
+                ['main:content'],
+                []
+           )
         );
 
-        if (!$force && $modifications->isForceRequired()) {
-            $this->outputLine();
-            $this->outputLine("The --force argument is required to apply following modifications:");
-            $this->outputLine($modifications->getAbstract());
-            $this->quit(1);
-        }
-
-        $modifications->apply($force);
-
-        $this->outputLine();
-        $this->outputLine("The following modifications were applied:");
-        $this->outputLine($modifications->getAbstract());
-
+        $this->executeModifications($modifications, false);
         $this->outputLine("Done");
     }
 
     /**
      * @param string $packageKey
      * @param string $nodeType
+     * @param array $childnode
+     * @param array $property
      * @param bool $force
      * @throws \Neos\Flow\Cli\Exception\StopCommandException
      */
-    public function contentCommand(string $packageKey, string $nodeType, bool $force = false) {
+    public function documentCommand(string $packageKey, string $nodeType, array $childnode = [], array $property = [], bool $force = false) {
         $package = $this->getFlowPackage($packageKey);
 
-        $nodeProperties = NodePropertyCollection::fromCliArguments($this->request->getExceedingArguments());
-        $nodeType = NodeType::create($package , 'Content.' . $nodeType, $nodeProperties);
-
-        $modifications = new ModificationCollection(
-            $this->contentFusionGenerator->generate($nodeType),
-            $this->contentNodeTypeGenerator->generate($nodeType),
-            $this->createDefaultIncludeModifications($package)
+        $modifications = $this->prepareDocumentNodeTypeModifications(
+            $package,
+            $nodeType,
+            $childnode,
+            array_merge($property, $this->request->getExceedingArguments())
         );
 
-        if (!$force && $modifications->isForceRequired()) {
-            $this->outputLine();
-            $this->outputLine("The --force argument is required to apply following modifications:");
-            $this->outputLine($modifications->getAbstract());
-            $this->quit(1);
-        }
+        $this->executeModifications($modifications, $force);
+        $this->outputLine("Done");
+    }
 
-        $modifications->apply($force);
+    /**
+     * @param string $packageKey
+     * @param string $nodeType
+     * @param array $childnode
+     * @param array $property
+     * @param bool $force
+     * @throws \Neos\Flow\Cli\Exception\StopCommandException
+     */
+    public function contentCommand(string $packageKey, string $nodeType, array $childnode = [], array $property = [], bool $force = false) {
+        $package = $this->getFlowPackage($packageKey);
 
-        $this->outputLine();
-        $this->outputLine("The following modifications were applied:");
-        $this->outputLine($modifications->getAbstract());
+        $modifications = $this->prepareContentNodeTypeModifications(
+            $package,
+            $nodeType,
+            $childnode,
+            array_merge($property, $this->request->getExceedingArguments())
+        );
 
+        $this->executeModifications($modifications, $force);
         $this->outputLine("Done");
     }
 
@@ -149,5 +164,68 @@ class KickstartCommandController extends CommandController
             return $package;
         }
         throw new \Exception("Package has to be a Flow Package Type");
+    }
+
+    /**
+     * @param ModificationCollection $modifications
+     * @param bool $force
+     * @throws \Neos\Flow\Cli\Exception\StopCommandException
+     */
+    protected function executeModifications(ModificationCollection $modifications, bool $force): void
+    {
+        if (!$force && $modifications->isForceRequired()) {
+            $this->outputLine();
+            $this->outputLine("The --force argument is required to apply following modifications:");
+            $this->outputLine($modifications->getAbstract());
+            $this->quit(1);
+        }
+
+        $modifications->apply($force);
+
+        $this->outputLine();
+        $this->outputLine("The following modifications were applied:");
+        $this->outputLine($modifications->getAbstract());
+    }
+
+    /**
+     * @param FlowPackageInterface $package
+     * @param string $nodeType
+     * @param string[] $childnodes
+     * @param string[] $properties
+     * @return ModificationIterface
+     */
+    protected function prepareDocumentNodeTypeModifications(FlowPackageInterface $package, string $nodeType, array $childnodes, array $properties): ModificationIterface
+    {
+        $nodeType = NodeTypeSpecification::fromCliArguments(
+            $package,
+            'Document.' . $nodeType,
+            $childnodes,
+            $properties
+        );
+
+        $modifications = new ModificationCollection(
+            $this->documentFusionGenerator->generate($nodeType),
+            $this->documentNodeTypeGenerator->generate($nodeType),
+            $this->createDefaultIncludeModifications($package)
+        );
+        return $modifications;
+    }
+
+    /**
+     * @param FlowPackageInterface $package
+     * @param string $nodeTypeArgument
+     * @param string[] $childnodes
+     * @param string[] $properties
+     * @return ModificationIterface
+     */
+    protected function prepareContentNodeTypeModifications(FlowPackageInterface $package, string $nodeTypeArgument, array $childnodes, array $properties): ModificationIterface
+    {
+        $nodeTypeArgument = NodeTypeSpecification::fromCliArguments($package, 'Content.' . $nodeTypeArgument, $childnodes, $properties);
+        $modifications = new ModificationCollection(
+            $this->contentFusionGenerator->generate($nodeTypeArgument),
+            $this->contentNodeTypeGenerator->generate($nodeTypeArgument),
+            $this->createDefaultIncludeModifications($package)
+        );
+        return $modifications;
     }
 }

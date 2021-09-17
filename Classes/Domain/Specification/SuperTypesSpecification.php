@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
@@ -9,6 +10,7 @@ use Neos\Flow\Annotations as Flow;
  * Class NodeTypeNameSpecificationCollection
  * @package Flowpack\SiteKickstarter\Domain\Specification
  * @Flow\Proxy(false)
+ * @implements \IteratorAggregate<int, NameSpecification>
  */
 class SuperTypesSpecification implements \IteratorAggregate
 {
@@ -28,7 +30,8 @@ class SuperTypesSpecification implements \IteratorAggregate
      * @param NameSpecification $primaryNameSpecification
      * @param NameSpecification ...$nameSpecifications
      */
-    private function __construct(NameSpecification $primaryNameSpecification, NameSpecification ...$nameSpecifications) {
+    private function __construct(NameSpecification $primaryNameSpecification, NameSpecification ...$nameSpecifications)
+    {
         $this->primaryNameSpecification = $primaryNameSpecification;
         $this->nameSpecifications = array_merge([$primaryNameSpecification], $nameSpecifications);
     }
@@ -41,7 +44,7 @@ class SuperTypesSpecification implements \IteratorAggregate
     {
         return new static(
             ...array_map(
-                function(string $name) {
+                function (string $name) {
                     return NameSpecification::fromString($name);
                 },
                 $names

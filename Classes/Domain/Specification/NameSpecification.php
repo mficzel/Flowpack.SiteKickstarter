@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
@@ -39,9 +40,6 @@ class NameSpecification
     /**
      * NodeType constructor.
      * @param string $fullName
-     * @param string[] $superTypeNames
-     * @param ChildrenSpecification $childNodes
-     * @param PropertiesSpecification $nodeProperties
      */
     private function __construct(string $fullName)
     {
@@ -53,7 +51,7 @@ class NameSpecification
 
     public static function fromString(string $name): self
     {
-        return new static ($name);
+        return new static($name);
     }
 
     /**

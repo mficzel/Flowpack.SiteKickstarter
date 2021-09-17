@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
@@ -18,7 +19,7 @@ class ContentFusionGenerator extends AbstractFusionGenerator
      */
     public function generate(FlowPackageInterface $package, NodeTypeSpecification $nodeType): ModificationIterface
     {
-        $packagePath = $this->getRelativePackagePath($package, $nodeType);
+        $packagePath = $this->getRelativePackagePath($package);
 
         $prototype = <<<EOT
             #
@@ -49,6 +50,4 @@ class ContentFusionGenerator extends AbstractFusionGenerator
             $prototype
         );
     }
-
-
 }

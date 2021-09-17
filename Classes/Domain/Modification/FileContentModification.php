@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Modification;
@@ -40,7 +41,7 @@ class FileContentModification implements ModificationIterface
         if (substr($this->filePath, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
             $path = substr($path, strlen(FLOW_PATH_ROOT));
         }
-        return sprintf("Ensure file %s contains '%s'" , $path, $this->content);
+        return sprintf("Ensure file %s contains '%s'", $path, $this->content);
     }
 
     /**
@@ -63,10 +64,12 @@ class FileContentModification implements ModificationIterface
             file_put_contents($this->filePath, $this->content);
         } else {
             $previousContent = file_get_contents($this->filePath);
+            if ($previousContent === false) {
+                throw new \Exception(sprintf('File %s could not be read', $this->filePath));
+            }
             if (strpos($previousContent, $this->content) === false) {
                 file_put_contents($this->filePath, $previousContent . PHP_EOL . $this->content);
             }
         }
-
     }
 }

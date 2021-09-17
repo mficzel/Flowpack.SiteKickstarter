@@ -1,15 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
 
-use Flowpack\SiteKickstarter\Domain\Specification\ChildSpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\PropertySpecification;
 use Neos\Flow\Annotations as Flow;
-
 
 /**
  * @Flow\Proxy(false)
+ * @implements \IteratorAggregate<int, ChildSpecification>
  */
 class ChildrenSpecification implements \IteratorAggregate
 {
@@ -19,7 +18,7 @@ class ChildrenSpecification implements \IteratorAggregate
     protected $nodeProperties;
 
     /**
-     * @param PropertySpecification ...$nodeProperties
+     * @param ChildSpecification ...$nodeProperties
      */
     private function __construct(ChildSpecification ...$nodeProperties)
     {
@@ -27,13 +26,13 @@ class ChildrenSpecification implements \IteratorAggregate
     }
 
     /**
-     * @param array $cliArguments
+     * @param mixed[] $cliArguments
      * @return static
      */
     public static function fromCliArguments(array $cliArguments): self
     {
         return new static(...array_map(
-            function(string $cliArgument) {
+            function (string $cliArgument) {
                 return ChildSpecification::fromCliArgument($cliArgument);
             },
             $cliArguments
@@ -49,7 +48,7 @@ class ChildrenSpecification implements \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator<int, PropertySpecification>
+     * @return \ArrayIterator<int, ChildSpecification>
      */
     public function getIterator()
     {

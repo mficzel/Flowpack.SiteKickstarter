@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
@@ -21,8 +22,8 @@ class PropertySpecification
     protected $typePreset;
 
     /**
-     * @param $name
-     * @param $typePreset
+     * @param string $name
+     * @param string $typePreset
      */
     private function __construct(string $name, string $typePreset)
     {

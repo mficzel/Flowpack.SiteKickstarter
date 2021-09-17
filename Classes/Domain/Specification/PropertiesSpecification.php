@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
@@ -7,6 +8,7 @@ use Neos\Flow\Annotations as Flow;
 
 /**
  * @Flow\Proxy(false)
+ * @implements \IteratorAggregate<int, PropertySpecification>
  */
 class PropertiesSpecification implements \IteratorAggregate
 {
@@ -24,13 +26,13 @@ class PropertiesSpecification implements \IteratorAggregate
     }
 
     /**
-     * @param array $cliArguments
+     * @param mixed[] $cliArguments
      * @return static
      */
     public static function fromCliArguments(array $cliArguments): self
     {
         return new static(...array_map(
-            function(string $cliArgument) {
+            function (string $cliArgument) {
                 return PropertySpecification::fromCliArgument($cliArgument);
             },
             $cliArguments

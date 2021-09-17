@@ -1,8 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Modification;
 
+/**
+ * Class ModificationCollection
+ * @package Flowpack\SiteKickstarter\Domain\Modification
+ * @implements \IteratorAggregate<int, ModificationIterface>
+ */
 class ModificationCollection implements ModificationIterface, \IteratorAggregate
 {
     /**
@@ -41,7 +47,7 @@ class ModificationCollection implements ModificationIterface, \IteratorAggregate
     public function getAbstract(): string
     {
         $abstracts = array_map(
-            function(ModificationIterface $modification) {
+            function (ModificationIterface $modification) {
                 return $modification->getAbstract();
             },
             $this->modifications
@@ -61,7 +67,7 @@ class ModificationCollection implements ModificationIterface, \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator
+     * @return \ArrayIterator<int, ModificationIterface>
      */
     public function getIterator()
     {

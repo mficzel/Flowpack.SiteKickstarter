@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
@@ -19,9 +20,9 @@ class NodeTypeSpecificationFactory
     /**
      * @param FlowPackageInterface $package
      * @param string $name
-     * @param array $superTypes
-     * @param array $childnodeCliArguments
-     * @param array $propertCliArguments
+     * @param string[] $superTypes
+     * @param string[] $childnodeCliArguments
+     * @param string[] $propertCliArguments
      * @param bool $abstract
      * @return NodeTypeSpecification
      */
@@ -35,7 +36,7 @@ class NodeTypeSpecificationFactory
 
         // prefix superTypes with package key
         $superTypes = array_map(
-            function(string $name) use ($package) {
+            function (string $name) use ($package) {
                 if (strpos($name, ':') === false) {
                     return $package->getPackageKey() . ':' . $name;
                 } else {
@@ -47,5 +48,4 @@ class NodeTypeSpecificationFactory
 
         return NodeTypeSpecification::fromCliArguments($name, $superTypes, $childnodeCliArguments, $propertCliArguments, $abstract);
     }
-
 }

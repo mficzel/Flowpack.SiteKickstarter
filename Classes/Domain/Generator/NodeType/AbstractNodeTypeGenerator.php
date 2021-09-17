@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\NodeType;
@@ -14,18 +15,18 @@ use Flowpack\SiteKickstarter\Domain\Specification\ChildSpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class AbstractNodeTypeGeneratorInterface extends AbstractGenerator implements NodeTypeGeneratorInterface
+abstract class AbstractNodeTypeGenerator extends AbstractGenerator implements NodeTypeGeneratorInterface
 {
 
     /**
-     * @var array
      * @Flow\InjectConfiguration(path="nodeTypePropertyTemplates")
+     * @var array<string, string>
      */
     protected $propertyTemplates;
 
     /**
-     * @var array
      * @Flow\InjectConfiguration(path="nodeTypeChildNodeTemplates")
+     * @var array<string, string>
      */
     protected $childNodeTemplates;
 
@@ -38,13 +39,13 @@ abstract class AbstractNodeTypeGeneratorInterface extends AbstractGenerator impl
     {
         $nodeTypeConfiguration = [
             'superTypes' => array_reduce(
-                    iterator_to_array($nodeType->getSuperTypes()),
-                    function(array $carry, NameSpecification $superType) {
-                        $carry[$superType->getFullName()] = true;
-                        return $carry;
-                    },
-                    []
-                ),
+                iterator_to_array($nodeType->getSuperTypes()),
+                function (array $carry, NameSpecification $superType) {
+                    $carry[$superType->getFullName()] = true;
+                    return $carry;
+                },
+                []
+            ),
             'ui' => [
                 'label' => $nodeType->getName()->getNickname(),
                 'icon' => 'rocket'
@@ -69,7 +70,6 @@ abstract class AbstractNodeTypeGeneratorInterface extends AbstractGenerator impl
         }
 
         if (!$nodeType->getNodeProperties()->isEmpty()) {
-
             $nodeTypeConfiguration['ui']['inspector'] = [
                 'groups' => [
                     'default' => [
@@ -96,7 +96,7 @@ abstract class AbstractNodeTypeGeneratorInterface extends AbstractGenerator impl
         }
 
         $yaml = Yaml::dump([$nodeType->getName()->getFullName() => $nodeTypeConfiguration], 99);
-        $packagePath = $this->getRelativePackagePath($package, $nodeType);
+        $packagePath = $this->getRelativePackagePath($package);
 
         $nodeTypeConfigurationAsString = <<<EOT
             #

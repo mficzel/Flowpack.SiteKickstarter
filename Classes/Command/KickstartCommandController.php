@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Command;
@@ -76,10 +77,10 @@ class KickstartCommandController extends CommandController
 
     /**
      * @param string $packageKey
+     * @return void
      */
-    public function sitepackageCommand(string $packageKey)
+    public function sitepackageCommand(string $packageKey): void
     {
-        ob_start();
         $this->packageManager->createPackage($packageKey, [
             'type' => 'neos-site',
             "require" => [
@@ -89,7 +90,6 @@ class KickstartCommandController extends CommandController
                 "neos/seo" => "*"
             ]
         ]);
-        ob_get_clean();
 
         $this->outputLine(sprintf("Package %s was sucessfully created and installed", $packageKey));
 
@@ -123,15 +123,15 @@ class KickstartCommandController extends CommandController
                 false,
                 [$this->documentNodeTypeGenerator, $this->documentFusionGenerator]
             ),
-           $this->prepareNodeTypeModifications(
+            $this->prepareNodeTypeModifications(
                 $package,
                 'Document.HomePage',
-               ['Document.Page'],
+                ['Document.Page'],
                 ['main:content'],
                 [],
-               false,
-               [$this->documentNodeTypeGenerator, $this->inheritedFusionGenerator]
-           )
+                false,
+                [$this->documentNodeTypeGenerator, $this->inheritedFusionGenerator]
+            )
         );
 
         $modifications = $this->addDefaultIncludeModifications($package, $modifications);
@@ -147,9 +147,11 @@ class KickstartCommandController extends CommandController
      * @param array $childnode
      * @param array $property
      * @param bool $force
+     * @return void
      * @throws \Neos\Flow\Cli\Exception\StopCommandException
      */
-    public function documentCommand(string $packageKey, string $nodeType, array $superTypes = [], array $childnode = [], array $property = [], bool $force = false) {
+    public function documentCommand(string $packageKey, string $nodeType, array $superTypes = [], array $childnode = [], array $property = [], bool $force = false): void
+    {
         $package = $this->getFlowPackage($packageKey);
 
         $modifications = $this->prepareNodeTypeModifications(
@@ -175,9 +177,11 @@ class KickstartCommandController extends CommandController
      * @param array $childnode
      * @param array $property
      * @param bool $force
+     * @return void
      * @throws \Neos\Flow\Cli\Exception\StopCommandException
      */
-    public function contentCommand(string $packageKey, string $nodeType, array $superTypes = [], array $childnode = [], array $property = [], bool $force = false) {
+    public function contentCommand(string $packageKey, string $nodeType, array $superTypes = [], array $childnode = [], array $property = [], bool $force = false): void
+    {
         $package = $this->getFlowPackage($packageKey);
 
         $modifications = $this->prepareNodeTypeModifications(
@@ -198,22 +202,23 @@ class KickstartCommandController extends CommandController
 
     /**
      * @param FlowPackageInterface $package
+     * @param ModificationIterface $modification
      * @return ModificationIterface
      */
     protected function addDefaultIncludeModifications(FlowPackageInterface $package, ModificationIterface $modification): ModificationIterface
     {
         return new ModificationCollection(
-            new FileContentModification( $package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: **/*'),
+            new FileContentModification($package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: **/*'),
             $modification
         );
     }
 
     /**
-     * @param $packageKey
+     * @param string $packageKey
      * @return FlowPackageInterface
      * @throws \Exception
      */
-    protected function getFlowPackage($packageKey): FlowPackageInterface
+    protected function getFlowPackage(string $packageKey): FlowPackageInterface
     {
         $package = $this->packageManager->getPackage($packageKey);
         if ($package instanceof FlowPackageInterface) {
@@ -223,11 +228,11 @@ class KickstartCommandController extends CommandController
     }
 
     /**
-     * @param ModificationCollection $modifications
+     * @param ModificationIterface $modifications
      * @param bool $force
      * @throws \Neos\Flow\Cli\Exception\StopCommandException
      */
-    protected function executeModifications(ModificationCollection $modifications, bool $force): void
+    protected function executeModifications(ModificationIterface $modifications, bool $force): void
     {
         if (!$force && $modifications->isForceRequired()) {
             $this->outputLine();
@@ -246,10 +251,10 @@ class KickstartCommandController extends CommandController
     /**
      * @param FlowPackageInterface $package
      * @param string $name
-     * @param array $superTypes
-     * @param array $childnodes
-     * @param array $properties
-     * @param false $abstract
+     * @param array<int,string> $superTypes
+     * @param array<int,string> $childnodes
+     * @param array<int,string> $properties
+     * @param bool $abstract
      * @param GeneratorInterface[] $generators
      * @return ModificationIterface
      */
@@ -266,7 +271,7 @@ class KickstartCommandController extends CommandController
 
         $modifications = new ModificationCollection(
             ...array_map(
-                function(GeneratorInterface $generator) use ($package, $nodeTypeSpecification) {
+                function (GeneratorInterface $generator) use ($package, $nodeTypeSpecification) {
                     return $generator->generate($package, $nodeTypeSpecification);
                 },
                 $generators

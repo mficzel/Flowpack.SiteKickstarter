@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
@@ -61,12 +62,13 @@ class NodeTypeSpecification
      * @param bool $abstract
      * @return static
      */
-    public static function fromCliArguments(string $name, array $superTypes, array $childnodeCliArguments, array $propertCliArguments, bool $abstract = false):self {
+    public static function fromCliArguments(string $name, array $superTypes, array $childnodeCliArguments, array $propertCliArguments, bool $abstract = false): self
+    {
         $nodeTypeName = NameSpecification::fromString($name);
         $nodeSuperTypes = SuperTypesSpecification::fromStringArray($superTypes);
         $childNodes = ChildrenSpecification::fromCliArguments($childnodeCliArguments);
         $properties = PropertiesSpecification::fromCliArguments($propertCliArguments);
-        return new static($nodeTypeName, $nodeSuperTypes,$childNodes, $properties, $abstract);
+        return new static($nodeTypeName, $nodeSuperTypes, $childNodes, $properties, $abstract);
     }
 
     /**

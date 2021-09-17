@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
@@ -14,14 +15,14 @@ abstract class AbstractFusionGenerator extends AbstractGenerator implements Fusi
 {
 
     /**
-     * @var array
      * @Flow\InjectConfiguration(path="fusionPropertyAccesingTemplates")
+     * @var array<string, string>
      */
     protected $propertyAccesingTemplates;
 
     /**
-     * @var array
      * @Flow\InjectConfiguration(path="fusionPropertyRenderingAfxTemplates")
+     * @var array<string, string>
      */
     protected $propertyRenderingAfxTemplates;
 
@@ -34,7 +35,7 @@ abstract class AbstractFusionGenerator extends AbstractGenerator implements Fusi
 
     /**
      * @param NodeTypeSpecification $nodeType
-     * @return array
+     * @return string
      */
     protected function createComponentProps(NodeTypeSpecification $nodeType): string
     {

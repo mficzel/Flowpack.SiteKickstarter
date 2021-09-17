@@ -11,7 +11,6 @@ abstract class AbstractGenerator implements GeneratorInterface
 
     /**
      * @param FlowPackageInterface $package
-     * @param NodeTypeSpecification $nodeType
      * @return string
      */
     public function getRelativePackagePath(FlowPackageInterface $package): string
@@ -23,5 +22,10 @@ abstract class AbstractGenerator implements GeneratorInterface
         return $path;
     }
 
-    abstract function generate(FlowPackageInterface $package, NodeTypeSpecification $nodeType): ModificationIterface;
+    /**
+     * @param FlowPackageInterface $package
+     * @param NodeTypeSpecification $nodeType
+     * @return ModificationIterface
+     */
+    abstract public function generate(FlowPackageInterface $package, NodeTypeSpecification $nodeType): ModificationIterface;
 }

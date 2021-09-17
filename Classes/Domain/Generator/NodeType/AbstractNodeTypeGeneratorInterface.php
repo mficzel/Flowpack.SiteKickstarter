@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\NodeType;
 
+use Flowpack\SiteKickstarter\Domain\Generator\AbstractGenerator;
 use Flowpack\SiteKickstarter\Domain\Specification\NameSpecification;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
@@ -13,7 +14,7 @@ use Flowpack\SiteKickstarter\Domain\Specification\ChildSpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorInterface
+abstract class AbstractNodeTypeGeneratorInterface extends AbstractGenerator implements NodeTypeGeneratorInterface
 {
 
     /**
@@ -95,12 +96,12 @@ abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorIn
         }
 
         $yaml = Yaml::dump([$nodeType->getName()->getFullName() => $nodeTypeConfiguration], 99);
-        $filePath = $this->getFilePath($package, $nodeType);
+        $packagePath = $this->getRelativePackagePath($package, $nodeType);
 
         $nodeTypeConfigurationAsString = <<<EOT
             #
             # Definition of NodeType {$nodeType->getName()->getFullName()}
-            # that is rendered by {$filePath}.fusion
+            # that is rendered by {$packagePath}{$nodeType->getFusionRenderPath()}
             #
             # @see https://docs.neos.io/cms/manual/content-repository/nodetype-definition
             # @see https://docs.neos.io/cms/manual/content-repository/nodetype-properties
@@ -110,25 +111,8 @@ abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorIn
 
 
         return new CreateFileModification(
-            $filePath.'.yaml',
+            $packagePath . $nodeType->getNodeTypeConfigurationPath(),
             $nodeTypeConfigurationAsString
         );
-    }
-
-    /**
-     * @param FlowPackageInterface $package
-     * @param NodeTypeSpecification $nodeType
-     * @return string
-     */
-    protected function getFilePath(FlowPackageInterface $package, NodeTypeSpecification $nodeType): string
-    {
-        $path = $package->getPackagePath();
-        if (substr($path, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
-            $path = substr($path, strlen(FLOW_PATH_ROOT));
-        }
-
-        return $path
-            . 'NodeTypes/' . implode('/', $nodeType->getName()->getLocalNameParts()) . '/'
-            . $nodeType->getName()->getNickname();
     }
 }

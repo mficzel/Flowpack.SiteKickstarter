@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
 
 use Neos\Flow\Annotations as Flow;
+use Flowpack\SiteKickstarter\Domain\Generator\AbstractGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\PropertySpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 
-abstract class AbstractFusionGenerator implements FusionGeneratorInterface
+abstract class AbstractFusionGenerator extends AbstractGenerator implements FusionGeneratorInterface
 {
 
     /**
@@ -35,7 +36,7 @@ abstract class AbstractFusionGenerator implements FusionGeneratorInterface
      * @param NodeTypeSpecification $nodeType
      * @return array
      */
-    protected function createPropertyAccessors(NodeTypeSpecification $nodeType): string
+    protected function createComponentProps(NodeTypeSpecification $nodeType): string
     {
         $properties = [];
 
@@ -113,22 +114,4 @@ abstract class AbstractFusionGenerator implements FusionGeneratorInterface
         $indent = str_pad('', $indentation);
         return implode(PHP_EOL . $indent, explode(PHP_EOL, $text));
     }
-
-    /**
-     * @param FlowPackageInterface $package
-     * @param NodeTypeSpecification $nodeType
-     * @return string
-     */
-    protected function getFilePath(FlowPackageInterface $package, NodeTypeSpecification $nodeType): string
-    {
-        $path = $package->getPackagePath();
-        if (substr($path, 0, strlen(FLOW_PATH_ROOT)) == FLOW_PATH_ROOT) {
-            $path = substr($path, strlen(FLOW_PATH_ROOT));
-        }
-
-        return $path
-            . 'NodeTypes/' . implode('/', $nodeType->getName()->getLocalNameParts()) . '/'
-            . $nodeType->getName()->getNickname();
-    }
-
 }

@@ -18,12 +18,12 @@ class InheritedFusionGenerator extends AbstractFusionGenerator
      */
     public function generate(FlowPackageInterface $package, NodeTypeSpecification $nodeType): ModificationIterface
     {
-        $filePath = $this->getFilePath($package, $nodeType);
+        $packagePath = $this->getRelativePackagePath($package, $nodeType);
 
         $prototype = <<<EOT
             #
             # The rendering of NodeType {$nodeType->getName()->getFullName()}
-            # as configured in {$filePath}.yaml
+            # as configured in {$packagePath}{$nodeType->getNodeTypeConfigurationPath()}
             # is inherited from {$nodeType->getPrimarySuperTypeName()->getFullName()}
             #
             # @see https://docs.neos.io/cms/manual/rendering
@@ -32,7 +32,7 @@ class InheritedFusionGenerator extends AbstractFusionGenerator
             EOT;
 
         return new CreateFileModification(
-            $filePath . '.fusion',
+            $packagePath . $nodeType->getFusionRenderPath(),
             $prototype
         );
     }

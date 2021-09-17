@@ -12,6 +12,7 @@ use Flowpack\SiteKickstarter\Domain\Generator\GeneratorInterface;
 use Flowpack\SiteKickstarter\Domain\Specification\ChildrenSpecification;
 use Flowpack\SiteKickstarter\Domain\Modification\FileContentModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
+use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecificationFactory;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Cli\CommandController;
 use Neos\Flow\Package\FlowPackageInterface;
@@ -68,10 +69,17 @@ class KickstartCommandController extends CommandController
     protected $inheritedFusionGenerator;
 
     /**
+     * @var NodeTypeSpecificationFactory
+     * @Flow\Inject
+     */
+    protected $nodeTypeSpecificationFactory;
+
+    /**
      * @param string $packageKey
      */
     public function sitepackageCommand(string $packageKey)
     {
+        ob_start();
         $this->packageManager->createPackage($packageKey, [
             'type' => 'neos-site',
             "require" => [
@@ -81,8 +89,9 @@ class KickstartCommandController extends CommandController
                 "neos/seo" => "*"
             ]
         ]);
+        ob_get_clean();
 
-        $this->outputLine(sprintf("Package %s was sucessfully created", $packageKey));
+        $this->outputLine(sprintf("Package %s was sucessfully created and installed", $packageKey));
 
         $package = $this->getFlowPackage($packageKey);
 
@@ -98,8 +107,8 @@ class KickstartCommandController extends CommandController
             ),
             $this->prepareNodeTypeModifications(
                 $package,
-                'Shortcut',
-                [$package->getPackageKey() . ':Document', 'Neos.Neos:Shortcut'],
+                'Document.Shortcut',
+                ['Document', 'Neos.Neos:Shortcut'],
                 ['main:content'],
                 [],
                 false,
@@ -107,8 +116,8 @@ class KickstartCommandController extends CommandController
             ),
             $this->prepareNodeTypeModifications(
                 $package,
-                'Page',
-                ['Neos.Neos:Document'],
+                'Document.Page',
+                ['Document'],
                 ['main:content'],
                 [],
                 false,
@@ -116,8 +125,8 @@ class KickstartCommandController extends CommandController
             ),
            $this->prepareNodeTypeModifications(
                 $package,
-                'HomePage',
-               [$package->getPackageKey() . ':Document.Page'],
+                'Document.HomePage',
+               ['Document.Page'],
                 ['main:content'],
                 [],
                false,
@@ -194,7 +203,7 @@ class KickstartCommandController extends CommandController
     protected function addDefaultIncludeModifications(FlowPackageInterface $package, ModificationIterface $modification): ModificationIterface
     {
         return new ModificationCollection(
-            new FileContentModification( $package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: ../../../../NodeTypes/**/*'),
+            new FileContentModification( $package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: **/*'),
             $modification
         );
     }
@@ -246,8 +255,9 @@ class KickstartCommandController extends CommandController
      */
     protected function prepareNodeTypeModifications(FlowPackageInterface $package, string $name, array $superTypes, array $childnodes, array $properties, $abstract = false, array $generators = []): ModificationIterface
     {
-        $nodeTypeSpecification = NodeTypeSpecification::fromCliArguments(
-            $package->getPackageKey() . ':' . $name,
+        $nodeTypeSpecification = $this->nodeTypeSpecificationFactory->createForPackageAndCliArguments(
+            $package,
+            $name,
             $superTypes,
             $childnodes,
             $properties,

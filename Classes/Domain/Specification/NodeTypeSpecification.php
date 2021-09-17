@@ -4,9 +4,10 @@ declare(strict_types=1);
 namespace Flowpack\SiteKickstarter\Domain\Specification;
 
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Package\FlowPackageInterface;
 
 /**
+ * Class NodeTypeSpecification
+ * @package Flowpack\SiteKickstarter\Domain\Specification
  * @Flow\Proxy(false)
  */
 class NodeTypeSpecification
@@ -106,6 +107,26 @@ class NodeTypeSpecification
     public function getNodeProperties(): PropertiesSpecification
     {
         return $this->nodeProperties;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNodeTypeConfigurationPath(): string
+    {
+        return 'NodeTypes'
+            . '/' . implode('/', $this->getName()->getLocalNameParts())
+            . '/' . $this->getName()->getNickname() . '.fusion';
+    }
+
+    /**
+     * @return string
+     */
+    public function getFusionRenderPath(): string
+    {
+        return 'Resources/Private/Fusion'
+            . '/' . implode('/', $this->getName()->getLocalNameParts())
+            . '/' . $this->getName()->getNickname() . '.yaml';
     }
 
     /**

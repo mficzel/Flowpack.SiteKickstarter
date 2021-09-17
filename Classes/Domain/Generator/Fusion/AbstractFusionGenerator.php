@@ -9,7 +9,7 @@ use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 
-abstract class AbstractFusionGenerator
+abstract class AbstractFusionGenerator implements FusionGeneratorInterface
 {
 
     /**

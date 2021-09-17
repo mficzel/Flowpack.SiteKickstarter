@@ -5,7 +5,7 @@ namespace Flowpack\SiteKickstarter\Domain\Generator\NodeType;
 
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 
-class ContentNodeTypeGenerator extends AbstractNodeTypeGenerator
+class ContentNodeTypeGenerator extends AbstractNodeTypeGeneratorInterface
 {
 
 

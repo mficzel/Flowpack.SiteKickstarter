@@ -77,6 +77,14 @@ class NodeTypeSpecification
     }
 
     /**
+     * @return NodeTypeNameSpecification
+     */
+    public function getPrimarySuperTypeName(): NodeTypeNameSpecification
+    {
+        return $this->superTypes->getPrimaryNameSpecification();
+    }
+
+    /**
      * @return NodeTypeNameSpecificationCollection
      */
     public function getSuperTypes(): NodeTypeNameSpecificationCollection

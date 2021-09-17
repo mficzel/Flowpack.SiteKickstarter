@@ -7,6 +7,8 @@ namespace Flowpack\SiteKickstarter\Command;
  * This file is part of the Flowpack.SiteKickstarter package.
  */
 
+use Flowpack\SiteKickstarter\Domain\Generator\Fusion\InheritedFusionGenerator;
+use Flowpack\SiteKickstarter\Domain\Generator\GeneratorInterface;
 use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeCollectionSpecification;
 use Flowpack\SiteKickstarter\Domain\Modification\FileContentModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
@@ -60,6 +62,12 @@ class KickstartCommandController extends CommandController
     protected $documentNodeTypeGenerator;
 
     /**
+     * @var InheritedFusionGenerator
+     * @Flow\Inject
+     */
+    protected $inheritedFusionGenerator;
+
+    /**
      * @param string $packageKey
      */
     public function sitepackageCommand(string $packageKey)
@@ -79,19 +87,41 @@ class KickstartCommandController extends CommandController
         $package = $this->getFlowPackage($packageKey);
 
         $modifications = new ModificationCollection(
-        $this->prepareDocumentNodeTypeModifications(
+            $this->prepareNodeTypeModifications(
+                $package,
+                'Document',
+                ['Neos.Neos:Document'],
+                ['main:content'],
+                [],
+                true,
+                [$this->documentNodeTypeGenerator]
+            ),
+            $this->prepareNodeTypeModifications(
+                $package,
+                'Shortcut',
+                [$package->getPackageKey() . ':Document', 'Neos.Neos:Shortcut'],
+                ['main:content'],
+                [],
+                false,
+                [$this->documentNodeTypeGenerator]
+            ),
+            $this->prepareNodeTypeModifications(
                 $package,
                 'Page',
                 ['Neos.Neos:Document'],
                 ['main:content'],
-                []
+                [],
+                false,
+                [$this->documentNodeTypeGenerator, $this->documentFusionGenerator]
             ),
-           $this->prepareDocumentNodeTypeModifications(
+           $this->prepareNodeTypeModifications(
                 $package,
                 'HomePage',
                [$package->getPackageKey() . ':Document.Page'],
                 ['main:content'],
-                []
+                [],
+               false,
+               [$this->documentNodeTypeGenerator, $this->inheritedFusionGenerator]
            )
         );
 
@@ -111,12 +141,14 @@ class KickstartCommandController extends CommandController
     public function documentCommand(string $packageKey, string $nodeType, array $superTypes = [], array $childnode = [], array $property = [], bool $force = false) {
         $package = $this->getFlowPackage($packageKey);
 
-        $modifications = $this->prepareDocumentNodeTypeModifications(
+        $modifications = $this->prepareNodeTypeModifications(
             $package,
-            $nodeType,
-            $superTypes,
+            'Document.' . $nodeType,
+            empty($superTypes) ? ['Neos.Neos:Document'] : $superTypes,
             $childnode,
-            array_merge($property, $this->request->getExceedingArguments())
+            array_merge($property, $this->request->getExceedingArguments()),
+            false,
+            [$this->documentFusionGenerator, $this->documentNodeTypeGenerator]
         );
 
         $this->executeModifications($modifications, $force);
@@ -135,12 +167,14 @@ class KickstartCommandController extends CommandController
     public function contentCommand(string $packageKey, string $nodeType, array $superTypes = [], array $childnode = [], array $property = [], bool $force = false) {
         $package = $this->getFlowPackage($packageKey);
 
-        $modifications = $this->prepareContentNodeTypeModifications(
+        $modifications = $this->prepareNodeTypeModifications(
             $package,
-            $nodeType,
-            $superTypes,
+            'Content.' . $nodeType,
+            empty($superTypes) ? ['Neos.Neos:Content'] : $superTypes,
             $childnode,
-            array_merge($property, $this->request->getExceedingArguments())
+            array_merge($property, $this->request->getExceedingArguments()),
+            false,
+            [$this->contentFusionGenerator, $this->contentNodeTypeGenerator]
         );
 
         $this->executeModifications($modifications, $force);
@@ -196,52 +230,33 @@ class KickstartCommandController extends CommandController
     /**
      * @param FlowPackageInterface $package
      * @param string $name
-     * @param string[] $superTypes
-     * @param string[] $childnodes
-     * @param string[] $properties
+     * @param array $superTypes
+     * @param array $childnodes
+     * @param array $properties
+     * @param false $abstract
+     * @param GeneratorInterface[] $generators
      * @return ModificationIterface
      */
-    protected function prepareDocumentNodeTypeModifications(FlowPackageInterface $package, string $name, array $superTypes, array $childnodes, array $properties, $abstract = false): ModificationIterface
+    protected function prepareNodeTypeModifications(FlowPackageInterface $package, string $name, array $superTypes, array $childnodes, array $properties, $abstract = false, array $generators = []): ModificationIterface
     {
         $nodeTypeSpecification = NodeTypeSpecification::fromCliArguments(
-            $package->getPackageKey() . ':' . 'Document.' . $name,
-            $superTypes ?? ['Neos.Neos:Document'],
+            $package->getPackageKey() . ':' . $name,
+            $superTypes,
             $childnodes,
             $properties,
             $abstract
         );
 
         $modifications = new ModificationCollection(
-            $this->documentFusionGenerator->generate($package, $nodeTypeSpecification),
-            $this->documentNodeTypeGenerator->generate($package, $nodeTypeSpecification),
-            $this->createDefaultIncludeModifications($package)
-        );
-        return $modifications;
-    }
-
-    /**
-     * @param FlowPackageInterface $package
-     * @param string $name
-     * @param string[] $superTypes
-     * @param string[] $childnodes
-     * @param string[] $properties
-     * @return ModificationIterface
-     */
-    protected function prepareContentNodeTypeModifications(FlowPackageInterface $package, string $name, array $superTypes, array $childnodes, array $properties, $abstract = false): ModificationIterface
-    {
-        $nodeTypeSpecification = NodeTypeSpecification::fromCliArguments(
-            $package->getPackageKey() . ':Content.' . $name,
-            $superTypes ?? ['Neos.Neos:Content'],
-            $childnodes,
-            $properties,
-            $abstract
+            $this->createDefaultIncludeModifications($package),
+            ...array_map(
+                function(GeneratorInterface $generator) use ($package, $nodeTypeSpecification) {
+                    return $generator->generate($package, $nodeTypeSpecification);
+                },
+                $generators
+            )
         );
 
-        $modifications = new ModificationCollection(
-            $this->contentFusionGenerator->generate($package, $nodeTypeSpecification),
-            $this->contentNodeTypeGenerator->generate($package,$nodeTypeSpecification),
-            $this->createDefaultIncludeModifications($package)
-        );
         return $modifications;
     }
 }

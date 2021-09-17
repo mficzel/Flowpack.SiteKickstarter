@@ -3,11 +3,21 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Specification;
 
-use Exception;
-use Traversable;
+use Neos\Flow\Annotations as Flow;
 
+/**
+ * Class NodeTypeNameSpecificationCollection
+ * @package Flowpack\SiteKickstarter\Domain\Specification
+ * @Flow\Proxy(false)
+ */
 class NodeTypeNameSpecificationCollection implements \IteratorAggregate
 {
+
+    /**
+     * @var NodeTypeNameSpecification
+     */
+    protected $primaryNameSpecification;
+
     /**
      * @var NodeTypeNameSpecification[]
      */
@@ -15,10 +25,12 @@ class NodeTypeNameSpecificationCollection implements \IteratorAggregate
 
     /**
      * NodeTypeNameSpecificationCollection constructor.
+     * @param NodeTypeNameSpecification $primaryNameSpecification
      * @param NodeTypeNameSpecification ...$nameSpecifications
      */
-    private function __construct(NodeTypeNameSpecification ...$nameSpecifications) {
-        $this->nameSpecifications = $nameSpecifications;
+    private function __construct(NodeTypeNameSpecification $primaryNameSpecification, NodeTypeNameSpecification ...$nameSpecifications) {
+        $this->primaryNameSpecification = $primaryNameSpecification;
+        $this->nameSpecifications = array_merge([$primaryNameSpecification], $nameSpecifications);
     }
 
     /**
@@ -40,6 +52,14 @@ class NodeTypeNameSpecificationCollection implements \IteratorAggregate
     public function getIterator()
     {
         return new \ArrayIterator($this->nameSpecifications);
+    }
+
+    /**
+     * @return NodeTypeNameSpecification
+     */
+    public function getPrimaryNameSpecification(): NodeTypeNameSpecification
+    {
+        return $this->primaryNameSpecification;
     }
 
     /**

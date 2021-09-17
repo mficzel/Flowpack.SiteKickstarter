@@ -13,7 +13,7 @@ use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeSpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class AbstractNodeTypeGenerator
+abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorInterface
 {
 
     /**

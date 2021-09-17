@@ -12,22 +12,22 @@ use Neos\Flow\Package\FlowPackageInterface;
 class NodeTypeSpecification
 {
     /**
-     * @var NodeTypeNameSpecification
+     * @var NameSpecification
      */
     protected $name;
 
     /**
-     * @var NodeTypeNameSpecificationCollection
+     * @var SuperTypesSpecification
      */
     protected $superTypes;
 
     /**
-     * @var NodePropertySpecificationCollection
+     * @var PropertiesSpecification
      */
     protected $nodeProperties;
 
     /**
-     * @var ChildNodeCollectionSpecification
+     * @var ChildrenSpecification
      */
     protected $childNodes;
 
@@ -38,12 +38,12 @@ class NodeTypeSpecification
 
     /**
      * NodeType constructor.
-     * @param NodeTypeNameSpecification $name
-     * @param NodeTypeNameSpecificationCollection $superTypes
-     * @param ChildNodeCollectionSpecification $childNodes
-     * @param NodePropertySpecificationCollection $nodeProperties
+     * @param NameSpecification $name
+     * @param SuperTypesSpecification $superTypes
+     * @param ChildrenSpecification $childNodes
+     * @param PropertiesSpecification $nodeProperties
      */
-    private function __construct(NodeTypeNameSpecification $name, NodeTypeNameSpecificationCollection $superTypes, ChildNodeCollectionSpecification $childNodes, NodePropertySpecificationCollection $nodeProperties, bool $abstract)
+    private function __construct(NameSpecification $name, SuperTypesSpecification $superTypes, ChildrenSpecification $childNodes, PropertiesSpecification $nodeProperties, bool $abstract)
     {
         $this->name = $name;
         $this->superTypes = $superTypes;
@@ -61,49 +61,49 @@ class NodeTypeSpecification
      * @return static
      */
     public static function fromCliArguments(string $name, array $superTypes, array $childnodeCliArguments, array $propertCliArguments, bool $abstract = false):self {
-        $nodeTypeName = NodeTypeNameSpecification::fromString($name);
-        $nodeSuperTypes = NodeTypeNameSpecificationCollection::fromStringArray($superTypes);
-        $childNodes = ChildNodeCollectionSpecification::fromCliArguments($childnodeCliArguments);
-        $properties = NodePropertySpecificationCollection::fromCliArguments($propertCliArguments);
+        $nodeTypeName = NameSpecification::fromString($name);
+        $nodeSuperTypes = SuperTypesSpecification::fromStringArray($superTypes);
+        $childNodes = ChildrenSpecification::fromCliArguments($childnodeCliArguments);
+        $properties = PropertiesSpecification::fromCliArguments($propertCliArguments);
         return new static($nodeTypeName, $nodeSuperTypes,$childNodes, $properties, $abstract);
     }
 
     /**
-     * @return NodeTypeNameSpecification
+     * @return NameSpecification
      */
-    public function getName(): NodeTypeNameSpecification
+    public function getName(): NameSpecification
     {
         return $this->name;
     }
 
     /**
-     * @return NodeTypeNameSpecification
+     * @return NameSpecification
      */
-    public function getPrimarySuperTypeName(): NodeTypeNameSpecification
+    public function getPrimarySuperTypeName(): NameSpecification
     {
         return $this->superTypes->getPrimaryNameSpecification();
     }
 
     /**
-     * @return NodeTypeNameSpecificationCollection
+     * @return SuperTypesSpecification
      */
-    public function getSuperTypes(): NodeTypeNameSpecificationCollection
+    public function getSuperTypes(): SuperTypesSpecification
     {
         return $this->superTypes;
     }
 
     /**
-     * @return ChildNodeCollectionSpecification
+     * @return ChildrenSpecification
      */
-    public function getChildNodes(): ChildNodeCollectionSpecification
+    public function getChildNodes(): ChildrenSpecification
     {
         return $this->childNodes;
     }
 
     /**
-     * @return NodePropertySpecificationCollection
+     * @return PropertiesSpecification
      */
-    public function getNodeProperties(): NodePropertySpecificationCollection
+    public function getNodeProperties(): PropertiesSpecification
     {
         return $this->nodeProperties;
     }

@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\NodeType;
 
-use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeNameSpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\NameSpecification;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Modification\CreateFileModification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeSpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\PropertySpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\ChildSpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -38,7 +38,7 @@ abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorIn
         $nodeTypeConfiguration = [
             'superTypes' => array_reduce(
                     iterator_to_array($nodeType->getSuperTypes()),
-                    function(array $carry, NodeTypeNameSpecification $superType) {
+                    function(array $carry, NameSpecification $superType) {
                         $carry[$superType->getFullName()] = true;
                         return $carry;
                     },
@@ -53,7 +53,7 @@ abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorIn
         if (!$nodeType->getChildNodes()->isEmpty()) {
 
             /**
-             * @var ChildNodeSpecification $childNode
+             * @var ChildSpecification $childNode
              */
             foreach ($nodeType->getChildNodes() as $childNode) {
                 $propertyTemplate = $this->childNodeTemplates[$childNode->getPreset()];
@@ -80,7 +80,7 @@ abstract class AbstractNodeTypeGeneratorInterface implements NodeTypeGeneratorIn
             ];
 
             /**
-             * @var NodePropertySpecification $nodeProperty
+             * @var PropertySpecification $nodeProperty
              */
             foreach ($nodeType->getNodeProperties() as $nodeProperty) {
                 $propertyTemplate = $this->propertyTemplates[$nodeProperty->getPreset()] ?? $this->propertyTemplates['default'];

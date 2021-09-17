@@ -9,7 +9,7 @@ namespace Flowpack\SiteKickstarter\Command;
 
 use Flowpack\SiteKickstarter\Domain\Generator\Fusion\InheritedFusionGenerator;
 use Flowpack\SiteKickstarter\Domain\Generator\GeneratorInterface;
-use Flowpack\SiteKickstarter\Domain\Specification\ChildNodeCollectionSpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\ChildrenSpecification;
 use Flowpack\SiteKickstarter\Domain\Modification\FileContentModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Neos\Flow\Annotations as Flow;
@@ -22,7 +22,7 @@ use Flowpack\SiteKickstarter\Domain\Generator\Fusion\DocumentFusionGenerator;
 use Flowpack\SiteKickstarter\Domain\Generator\NodeType\ContentNodeTypeGenerator;
 use Flowpack\SiteKickstarter\Domain\Generator\NodeType\DocumentNodeTypeGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationCollection;
-use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecificationCollection;
+use Flowpack\SiteKickstarter\Domain\Specification\PropertiesSpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 
 /**
@@ -125,6 +125,8 @@ class KickstartCommandController extends CommandController
            )
         );
 
+        $modifications = $this->addDefaultIncludeModifications($package, $modifications);
+
         $this->executeModifications($modifications, false);
         $this->outputLine("Done");
     }
@@ -150,6 +152,8 @@ class KickstartCommandController extends CommandController
             false,
             [$this->documentFusionGenerator, $this->documentNodeTypeGenerator]
         );
+
+        $modifications = $this->addDefaultIncludeModifications($package, $modifications);
 
         $this->executeModifications($modifications, $force);
         $this->outputLine("Done");
@@ -177,6 +181,8 @@ class KickstartCommandController extends CommandController
             [$this->contentFusionGenerator, $this->contentNodeTypeGenerator]
         );
 
+        $modifications = $this->addDefaultIncludeModifications($package, $modifications);
+
         $this->executeModifications($modifications, $force);
         $this->outputLine("Done");
     }
@@ -185,10 +191,11 @@ class KickstartCommandController extends CommandController
      * @param FlowPackageInterface $package
      * @return ModificationIterface
      */
-    protected function createDefaultIncludeModifications(FlowPackageInterface $package): ModificationIterface
+    protected function addDefaultIncludeModifications(FlowPackageInterface $package, ModificationIterface $modification): ModificationIterface
     {
         return new ModificationCollection(
-            new FileContentModification( $package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: ../../../../NodeTypes/**/*')
+            new FileContentModification( $package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: ../../../../NodeTypes/**/*'),
+            $modification
         );
     }
 
@@ -248,7 +255,6 @@ class KickstartCommandController extends CommandController
         );
 
         $modifications = new ModificationCollection(
-            $this->createDefaultIncludeModifications($package),
             ...array_map(
                 function(GeneratorInterface $generator) use ($package, $nodeTypeSpecification) {
                     return $generator->generate($package, $nodeTypeSpecification);

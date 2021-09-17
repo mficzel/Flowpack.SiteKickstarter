@@ -6,7 +6,7 @@ namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\NodePropertySpecification;
+use Flowpack\SiteKickstarter\Domain\Specification\PropertySpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 
 abstract class AbstractFusionGenerator implements FusionGeneratorInterface
@@ -40,7 +40,7 @@ abstract class AbstractFusionGenerator implements FusionGeneratorInterface
         $properties = [];
 
         /**
-         * @var NodePropertySpecification $nodeProperty
+         * @var PropertySpecification $nodeProperty
          */
         foreach ($nodeType->getNodeProperties() as $nodeProperty) {
             $renderingTemplate = $this->propertyAccesingTemplates[$nodeProperty->getPreset()] ?? $this->propertyAccesingTemplates['default'];
@@ -75,7 +75,7 @@ abstract class AbstractFusionGenerator implements FusionGeneratorInterface
         $properties = '';
 
         /**
-         * @var NodePropertySpecification $nodeProperty
+         * @var PropertySpecification $nodeProperty
          */
         foreach ($nodeType->getNodeProperties() as $nodeProperty) {
             $properties .= $this->createPropertyRenderer($nodeProperty);
@@ -89,10 +89,10 @@ abstract class AbstractFusionGenerator implements FusionGeneratorInterface
     }
 
     /**
-     * @param NodePropertySpecification $nodeProperty
+     * @param PropertySpecification $nodeProperty
      * @return string
      */
-    protected function createPropertyRenderer(NodePropertySpecification $nodeProperty): string
+    protected function createPropertyRenderer(PropertySpecification $nodeProperty): string
     {
         $renderingTemplate = $this->propertyRenderingAfxTemplates[$nodeProperty->getPreset()] ?? $this->propertyRenderingAfxTemplates['default'];
         return <<<EOT

@@ -8,17 +8,17 @@ use Neos\Flow\Annotations as Flow;
 /**
  * @Flow\Proxy(false)
  */
-class NodePropertySpecificationCollection implements \IteratorAggregate
+class PropertiesSpecification implements \IteratorAggregate
 {
     /**
-     * @var array<int, NodePropertySpecification>
+     * @var array<int, PropertySpecification>
      */
     protected $nodeProperties;
 
     /**
-     * @param NodePropertySpecification ...$nodeProperties
+     * @param PropertySpecification ...$nodeProperties
      */
-    private function __construct(NodePropertySpecification ...$nodeProperties)
+    private function __construct(PropertySpecification ...$nodeProperties)
     {
         $this->nodeProperties = $nodeProperties;
     }
@@ -31,7 +31,7 @@ class NodePropertySpecificationCollection implements \IteratorAggregate
     {
         return new static(...array_map(
             function(string $cliArgument) {
-                return NodePropertySpecification::fromCliArgument($cliArgument);
+                return PropertySpecification::fromCliArgument($cliArgument);
             },
             $cliArguments
         ));
@@ -46,7 +46,7 @@ class NodePropertySpecificationCollection implements \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator<int, NodePropertySpecification>
+     * @return \ArrayIterator<int, PropertySpecification>
      */
     public function getIterator()
     {

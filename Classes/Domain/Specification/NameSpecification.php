@@ -9,7 +9,7 @@ use Neos\Flow\Package\FlowPackageInterface;
 /**
  * @Flow\Proxy(false)
  */
-class NodeTypeNameSpecification
+class NameSpecification
 {
     /**
      * @var string
@@ -40,8 +40,8 @@ class NodeTypeNameSpecification
      * NodeType constructor.
      * @param string $fullName
      * @param string[] $superTypeNames
-     * @param ChildNodeCollectionSpecification $childNodes
-     * @param NodePropertySpecificationCollection $nodeProperties
+     * @param ChildrenSpecification $childNodes
+     * @param PropertiesSpecification $nodeProperties
      */
     private function __construct(string $fullName)
     {

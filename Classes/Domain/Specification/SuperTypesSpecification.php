@@ -10,25 +10,25 @@ use Neos\Flow\Annotations as Flow;
  * @package Flowpack\SiteKickstarter\Domain\Specification
  * @Flow\Proxy(false)
  */
-class NodeTypeNameSpecificationCollection implements \IteratorAggregate
+class SuperTypesSpecification implements \IteratorAggregate
 {
 
     /**
-     * @var NodeTypeNameSpecification
+     * @var NameSpecification
      */
     protected $primaryNameSpecification;
 
     /**
-     * @var NodeTypeNameSpecification[]
+     * @var NameSpecification[]
      */
     protected $nameSpecifications;
 
     /**
      * NodeTypeNameSpecificationCollection constructor.
-     * @param NodeTypeNameSpecification $primaryNameSpecification
-     * @param NodeTypeNameSpecification ...$nameSpecifications
+     * @param NameSpecification $primaryNameSpecification
+     * @param NameSpecification ...$nameSpecifications
      */
-    private function __construct(NodeTypeNameSpecification $primaryNameSpecification, NodeTypeNameSpecification ...$nameSpecifications) {
+    private function __construct(NameSpecification $primaryNameSpecification, NameSpecification ...$nameSpecifications) {
         $this->primaryNameSpecification = $primaryNameSpecification;
         $this->nameSpecifications = array_merge([$primaryNameSpecification], $nameSpecifications);
     }
@@ -42,7 +42,7 @@ class NodeTypeNameSpecificationCollection implements \IteratorAggregate
         return new static(
             ...array_map(
                 function(string $name) {
-                    return NodeTypeNameSpecification::fromString($name);
+                    return NameSpecification::fromString($name);
                 },
                 $names
             )
@@ -55,9 +55,9 @@ class NodeTypeNameSpecificationCollection implements \IteratorAggregate
     }
 
     /**
-     * @return NodeTypeNameSpecification
+     * @return NameSpecification
      */
-    public function getPrimaryNameSpecification(): NodeTypeNameSpecification
+    public function getPrimaryNameSpecification(): NameSpecification
     {
         return $this->primaryNameSpecification;
     }

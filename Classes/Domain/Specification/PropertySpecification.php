@@ -8,7 +8,7 @@ use Neos\Flow\Annotations as Flow;
 /**
  * @Flow\Proxy(false)
  */
-class NodePropertySpecification
+class PropertySpecification
 {
     /**
      * @var string

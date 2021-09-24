@@ -5,15 +5,19 @@ Flowpack:
       content: |
         type: Neos.Neos:ContentCollection
 
-#    childNodeAccessorTemplate:
-#
-#      default: | Neos.Neos:ContentCase {
-#          @context.node = ${q(node).children("__name__")}
-#        }
-#
-#      content: | Neos.Neos:ContentCollection {
-#          path = "__name__"
-#        }
+    fusionChildrenAccesingTemplates:
+      default: |
+        Neos.Neos:ContentCase {
+          @context.node = ${q(node).children("__name__")}
+        }
+
+      content: |
+        Neos.Neos:ContentCollection {
+          path = "__name__"
+        }
+
+    fusionChildrenRenderingAfxTemplates:
+      default: '{props.__name__}'
 
     fusionPropertyAccesingTemplates:
       default: '${q(node).property("__name__")}'

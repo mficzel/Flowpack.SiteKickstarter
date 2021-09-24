@@ -9,7 +9,7 @@ use Flowpack\SiteKickstarter\Domain\Modification\CreateFileModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Neos\Flow\Package\FlowPackageInterface;
 
-class ContentFusionGenerator extends AbstractFusionGenerator
+class ContentFusionRendererGenerator extends AbstractFusionRendererGenerator
 {
 
     /**

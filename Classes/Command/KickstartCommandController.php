@@ -8,9 +8,9 @@ namespace Flowpack\SiteKickstarter\Command;
  * This file is part of the Flowpack.SiteKickstarter package.
  */
 
-use Flowpack\SiteKickstarter\Domain\Generator\Fusion\InheritedFusionGenerator;
+use Flowpack\SiteKickstarter\Domain\Generator\Fusion\InheritedFusionRendererGenerator;
 use Flowpack\SiteKickstarter\Domain\Generator\GeneratorInterface;
-use Flowpack\SiteKickstarter\Domain\Specification\ChildrenSpecification;
+use Flowpack\SiteKickstarter\Domain\Generator\NodeType\NodetypeConfigurationGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\FileContentModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecificationFactory;
@@ -18,14 +18,9 @@ use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Cli\CommandController;
 use Neos\Flow\Package\FlowPackageInterface;
 use Neos\Flow\Package\PackageManager;
-use Neos\Flow\Package;
-use Flowpack\SiteKickstarter\Domain\Generator\Fusion\ContentFusionGenerator;
-use Flowpack\SiteKickstarter\Domain\Generator\Fusion\DocumentFusionGenerator;
-use Flowpack\SiteKickstarter\Domain\Generator\NodeType\ContentNodeTypeGenerator;
-use Flowpack\SiteKickstarter\Domain\Generator\NodeType\DocumentNodeTypeGenerator;
+use Flowpack\SiteKickstarter\Domain\Generator\Fusion\ContentFusionRendererGenerator;
+use Flowpack\SiteKickstarter\Domain\Generator\Fusion\DocumentFusionRendererGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationCollection;
-use Flowpack\SiteKickstarter\Domain\Specification\PropertiesSpecification;
-use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 
 /**
  * @Flow\Scope("singleton")
@@ -40,34 +35,28 @@ class KickstartCommandController extends CommandController
     protected $packageManager;
 
     /**
-     * @var ContentFusionGenerator
+     * @var ContentFusionRendererGenerator
      * @Flow\Inject
      */
-    protected $contentFusionGenerator;
+    protected $contentFusionRendererGenerator;
 
     /**
-     * @var DocumentFusionGenerator
+     * @var DocumentFusionRendererGenerator
      * @Flow\Inject
      */
-    protected $documentFusionGenerator;
+    protected $documentFusionRendererGenerator;
 
     /**
-     * @var ContentNodeTypeGenerator
+     * @var InheritedFusionRendererGenerator
      * @Flow\Inject
      */
-    protected $contentNodeTypeGenerator;
+    protected $inheritedFusionRendererGenerator;
 
     /**
-     * @var DocumentNodeTypeGenerator
+     * @var NodetypeConfigurationGenerator
      * @Flow\Inject
      */
-    protected $documentNodeTypeGenerator;
-
-    /**
-     * @var InheritedFusionGenerator
-     * @Flow\Inject
-     */
-    protected $inheritedFusionGenerator;
+    protected $nodetypeConfigurationGenerator;
 
     /**
      * @var NodeTypeSpecificationFactory
@@ -127,7 +116,7 @@ class KickstartCommandController extends CommandController
                 ['main:content'],
                 [],
                 true,
-                [$this->documentNodeTypeGenerator]
+                [$this->nodetypeConfigurationGenerator]
             ),
             $this->prepareNodeTypeModifications(
                 $package,
@@ -136,7 +125,7 @@ class KickstartCommandController extends CommandController
                 ['main:content'],
                 [],
                 false,
-                [$this->documentNodeTypeGenerator]
+                [$this->nodetypeConfigurationGenerator]
             ),
             $this->prepareNodeTypeModifications(
                 $package,
@@ -145,7 +134,7 @@ class KickstartCommandController extends CommandController
                 ['main:content'],
                 [],
                 false,
-                [$this->documentNodeTypeGenerator, $this->documentFusionGenerator]
+                [$this->nodetypeConfigurationGenerator, $this->documentFusionRendererGenerator]
             ),
             $this->prepareNodeTypeModifications(
                 $package,
@@ -154,14 +143,28 @@ class KickstartCommandController extends CommandController
                 ['main:content'],
                 [],
                 false,
-                [$this->documentNodeTypeGenerator, $this->inheritedFusionGenerator]
+                [$this->nodetypeConfigurationGenerator, $this->inheritedFusionRendererGenerator]
             )
         );
 
         $modifications = $this->addDefaultIncludeModifications($package, $modifications);
 
         $this->executeModifications($modifications, false);
-        $this->outputLine("Done");
+
+        $this->output(
+            <<<EOT
+            Your site package {$packageKey} is ready.
+
+            You may want to do this next:
+
+            1. Define more document and content nodes for your new package with the commands:
+               <fg=#00adee;options=bold>./flow kickstart:document --package-key {$packageKey} Article --property author:text --property date:date </>
+               <fg=#00adee;options=bold>./flow kickstart:content --package-key {$packageKey} Figure --property text:richtext --property image:image </>
+            2. Create a new site that uses this package:
+               <fg=#00adee;options=bold>./flow site:create --node-name site --package-key {$packageKey} --node-type {$packageKey}.Document.HomePage</>
+
+            EOT
+        );
     }
 
     /**
@@ -185,7 +188,7 @@ class KickstartCommandController extends CommandController
             $childnode,
             array_merge($property, $this->request->getExceedingArguments()),
             false,
-            [$this->documentFusionGenerator, $this->documentNodeTypeGenerator]
+            [$this->documentFusionRendererGenerator, $this->nodetypeConfigurationGenerator]
         );
 
         $modifications = $this->addDefaultIncludeModifications($package, $modifications);
@@ -215,7 +218,7 @@ class KickstartCommandController extends CommandController
             $childnode,
             array_merge($property, $this->request->getExceedingArguments()),
             false,
-            [$this->contentFusionGenerator, $this->contentNodeTypeGenerator]
+            [$this->contentFusionRendererGenerator, $this->nodetypeConfigurationGenerator]
         );
 
         $modifications = $this->addDefaultIncludeModifications($package, $modifications);
@@ -268,7 +271,7 @@ class KickstartCommandController extends CommandController
         $modifications->apply($force);
 
         $this->outputLine();
-        $this->outputLine("The following modifications were applied:");
+        $this->outputLine("The following modifications are applied:");
         $this->outputLine($modifications->getAbstract());
     }
 

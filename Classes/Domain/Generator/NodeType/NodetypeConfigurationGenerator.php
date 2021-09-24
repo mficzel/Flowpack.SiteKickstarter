@@ -15,7 +15,7 @@ use Flowpack\SiteKickstarter\Domain\Specification\ChildSpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class AbstractNodeTypeGenerator extends AbstractGenerator implements NodeTypeGeneratorInterface
+class NodetypeConfigurationGenerator extends AbstractGenerator
 {
 
     /**
@@ -108,7 +108,6 @@ abstract class AbstractNodeTypeGenerator extends AbstractGenerator implements No
             #
             {$yaml}
             EOT;
-
 
         return new CreateFileModification(
             $packagePath . $nodeType->getNodeTypeConfigurationPath(),

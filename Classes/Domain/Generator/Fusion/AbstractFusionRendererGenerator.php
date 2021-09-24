@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Domain\Generator\Fusion;
 
+use Flowpack\SiteKickstarter\Domain\Specification\ChildrenSpecification;
 use Neos\Flow\Annotations as Flow;
 use Flowpack\SiteKickstarter\Domain\Generator\AbstractGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
@@ -11,7 +12,7 @@ use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecification;
 use Flowpack\SiteKickstarter\Domain\Specification\PropertySpecification;
 use Neos\Flow\Package\FlowPackageInterface;
 
-abstract class AbstractFusionGenerator extends AbstractGenerator implements FusionGeneratorInterface
+abstract class AbstractFusionRendererGenerator extends AbstractGenerator
 {
 
     /**
@@ -21,10 +22,22 @@ abstract class AbstractFusionGenerator extends AbstractGenerator implements Fusi
     protected $propertyAccesingTemplates;
 
     /**
+     * @Flow\InjectConfiguration(path="fusionChildrenAccesingTemplates")
+     * @var array<string, string>
+     */
+    protected $childrenAccesingTemplates;
+
+    /**
      * @Flow\InjectConfiguration(path="fusionPropertyRenderingAfxTemplates")
      * @var array<string, string>
      */
     protected $propertyRenderingAfxTemplates;
+
+    /**
+     * @Flow\InjectConfiguration(path="fusionChildrenRenderingAfxTemplates")
+     * @var array<string, string>
+     */
+    protected $childrenRenderingTemplates;
 
     /**
      * @param FlowPackageInterface $package
@@ -48,6 +61,14 @@ abstract class AbstractFusionGenerator extends AbstractGenerator implements Fusi
             $renderingTemplate = $this->propertyAccesingTemplates[$nodeProperty->getPreset()] ?? $this->propertyAccesingTemplates['default'];
             $properties[] = $nodeProperty->getName() . ' = ' . str_replace('__name__', $nodeProperty->getName(), trim($renderingTemplate));
         }
+//
+//        /**
+//         * @var ChildrenSpecification $childNode
+//         */
+//        foreach ($nodeType->getChildNodes() as $childNode) {
+//            $renderingTemplate = $this->childrenAccesingTemplates[$nodeProperty->getPreset()] ?? $this->propertyAccesingTemplates['default'];
+//            $properties[] = $childNode->getName() . ' = ' . str_replace('__name__', $childNode->getName(), trim($renderingTemplate));
+//        }
 
         return implode(PHP_EOL, $properties);
     }
@@ -59,6 +80,7 @@ abstract class AbstractFusionGenerator extends AbstractGenerator implements Fusi
     protected function createAfxRenderer(NodeTypeSpecification $nodeType): string
     {
         $properties = $this->indent($this->createPropertiesList($nodeType));
+        // $children = $this->indent($this->createPropertiesList($nodeType));
 
         return <<<EOT
             <div>

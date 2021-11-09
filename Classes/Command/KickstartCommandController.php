@@ -211,7 +211,7 @@ class KickstartCommandController extends CommandController
     protected function addDefaultIncludeModifications(FlowPackageInterface $package, ModificationIterface $modification): ModificationIterface
     {
         return new ModificationCollection(
-            new FileContentModification($package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: **/*'),
+            new FileContentModification($package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: ../../../NodeTypes/**/*.fusion'),
             $modification
         );
     }

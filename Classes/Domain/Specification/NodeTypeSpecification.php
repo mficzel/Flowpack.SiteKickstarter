@@ -118,7 +118,7 @@ class NodeTypeSpecification
     {
         return 'NodeTypes'
             . '/' . implode('/', $this->getName()->getLocalNameParts())
-            . '/' . $this->getName()->getNickname() . '.fusion';
+            . '/' . $this->getName()->getNickname() . '.yaml';
     }
 
     /**
@@ -126,9 +126,9 @@ class NodeTypeSpecification
      */
     public function getFusionRenderPath(): string
     {
-        return 'Resources/Private/Fusion'
+        return 'NodeTypes'
             . '/' . implode('/', $this->getName()->getLocalNameParts())
-            . '/' . $this->getName()->getNickname() . '.yaml';
+            . '/' . $this->getName()->getNickname() . '.fusion';
     }
 
     /**

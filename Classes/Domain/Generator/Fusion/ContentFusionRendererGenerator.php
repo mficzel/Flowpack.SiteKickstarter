@@ -46,7 +46,7 @@ class ContentFusionRendererGenerator extends AbstractFusionRendererGenerator
             EOT;
 
         return new CreateFileModification(
-            $packagePath . $nodeType->getNodeTypeConfigurationPath(),
+            $packagePath . $nodeType->getFusionRenderPath(),
             $prototype
         );
     }

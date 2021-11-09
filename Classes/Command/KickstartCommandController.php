@@ -64,30 +64,6 @@ class KickstartCommandController extends CommandController
      */
     protected $nodeTypeSpecificationFactory;
 
-    public function welcomeCommand(): void
-    {
-        $this->output(
-            <<<EOT
-            <fg=#00adee;options=bold>
-
-            ....######          .######
-            .....#######      ...######
-            .......#######   ....######
-            .........####### ....######
-            ....#......#######...######
-            ....##.......#######.######
-            ....#####......############
-            ....#####  ......##########
-            ....#####    ......########
-            ....#####      ......######
-            .#######         ........
-
-            Welcome to Neos.
-            </>
-            EOT
-        );
-    }
-
     /**
      * @param string $packageKey
      * @return void

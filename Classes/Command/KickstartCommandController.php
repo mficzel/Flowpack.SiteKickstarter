@@ -12,6 +12,7 @@ use Flowpack\SiteKickstarter\Domain\Generator\Fusion\InheritedFusionRendererGene
 use Flowpack\SiteKickstarter\Domain\Generator\GeneratorInterface;
 use Flowpack\SiteKickstarter\Domain\Generator\NodeType\NodetypeConfigurationGenerator;
 use Flowpack\SiteKickstarter\Domain\Modification\FileContentModification;
+use Flowpack\SiteKickstarter\Domain\Modification\SettingModification;
 use Flowpack\SiteKickstarter\Domain\Modification\ModificationIterface;
 use Flowpack\SiteKickstarter\Domain\Specification\NodeTypeSpecificationFactory;
 use Neos\Flow\Annotations as Flow;
@@ -211,6 +212,11 @@ class KickstartCommandController extends CommandController
     protected function addDefaultIncludeModifications(FlowPackageInterface $package, ModificationIterface $modification): ModificationIterface
     {
         return new ModificationCollection(
+            new SettingModification(
+                $package->getPackagePath() . 'Configuration/Setting.yaml',
+                'Neos.Neos.fusion.autoInclude',
+                [$package->getPackageKey() => true]
+            ),
             new FileContentModification($package->getPackagePath() . 'Resources/Private/Fusion/Root.fusion', 'include: ../../../NodeTypes/**/*.fusion'),
             $modification
         );

@@ -1,6 +1,21 @@
 Flowpack:
   SiteKickstarter:
 
+    supportedImageHandlers:
+      - 'gd'
+      - 'gmagick'
+      - 'imagick'
+
+    requiredImageFormats:
+      - 'jpg'
+      - 'gif'
+      - 'png'
+
+    supportedDatabaseDrivers:
+      - 'pdo_mysql'
+      - 'mysqli'
+      - 'pdo_pgsql'
+
     nodeTypeChildNodeTemplates:
       content: |
         type: Neos.Neos:ContentCollection

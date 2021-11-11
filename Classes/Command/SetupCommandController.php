@@ -72,7 +72,7 @@ class SetupCommandController extends CommandController
         if (is_null($driver)) {
             $driver = $this->output->select(
                 sprintf('DB Driver (<info>%s</info>): ', $this->persistenceConfiguration['driver']),
-                array_keys($availableDrivers),
+                $availableDrivers,
                 $this->persistenceConfiguration['driver']
             );
         }
@@ -121,7 +121,10 @@ class SetupCommandController extends CommandController
         }
 
         $filename = $this->getSettingsFilename();
-        $this->writeSettings($filename, 'Neos.Flow.persistence.backendOptions',$persistenceConfiguration);
+
+        $this->outputLine();
+        $this->output($this->writeSettings($filename, 'Neos.Flow.persistence.backendOptions',$persistenceConfiguration));
+        $this->outputLine();
         $this->outputLine(sprintf("The new database settings are written to file <info>%s</info>", $filename));
     }
 
@@ -146,7 +149,9 @@ class SetupCommandController extends CommandController
         }
 
         $filename = $this->getSettingsFilename();
-        $this->writeSettings($filename, 'Neos.Imagine.driver', $driver);
+        $this->outputLine();
+        $this->output($this->writeSettings($filename, 'Neos.Imagine.driver', $driver));
+        $this->outputLine();
         $this->outputLine(sprintf("The new imagine hander setting was writtento file <info>%s</info>", $filename));
     }
 
@@ -160,11 +165,14 @@ class SetupCommandController extends CommandController
     }
 
     /**
+     * Write the settings to the given path, existing configuration files are created or modified
+     *
      * @param string $filename
      * @param string $path
-     * @param mixed $settings
+     * @param mixed $settings The settings for the
+     * @return string The added yaml code
      */
-    protected function writeSettings(string $filename, string $path, $settings): void
+    protected function writeSettings(string $filename, string $path, $settings): string
     {
         if (file_exists($filename)) {
             $previousSettings = Yaml::parseFile($filename);
@@ -172,6 +180,7 @@ class SetupCommandController extends CommandController
             $previousSettings = [];
         }
         $newSettings = Arrays::setValueByPath($previousSettings,$path, $settings);
-        file_put_contents($filename, YAML::dump($newSettings, 10));
+        file_put_contents($filename, YAML::dump($newSettings, 10, 2));
+        return YAML::dump(Arrays::setValueByPath([],$path, $settings), 10, 2);
     }
 }

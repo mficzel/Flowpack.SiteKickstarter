@@ -50,16 +50,18 @@ class WelcomeCommandController extends CommandController
 
             The following cli commands will help you to configure your Neos:
 
-            1. Configure the databse connection.
+            1. Configure the database connection.
                <info>./flow setup:database</info>
-            2. Configure the imageHandling.
+            2. Migrate the database
+               <info>./flow doctrine:migrate</info>
+            3. Configure the imageHandling.
                <info>./flow setup:imagehandler</info>
-            3. Create an admin user
+            4. Create an admin user
                <info>./flow user:create --roles Administrator admin admin Admin User </info>
-            4. Create your own site package or require an existing one
+            5. Create your own site package or require an existing one
                - <info>./flow kickstart:site Vendor.Site</info>
                - <info>composer require neos/demo && ./flow flow:package:rescan</info>
-            5. Import a site or create an empty one
+            6. Import a site or create an empty one
                - <info>./flow site:import Vendor.Site</info>
                - <info>./flow site:create sitename Vendor.Site Vendor.Site:Document.HomePage</info>
 

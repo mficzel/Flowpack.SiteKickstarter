@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Flowpack\SiteKickstarter\Infrastructure\Database;
 
+use Neos\Flow\Annotations as Flow;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -13,13 +14,10 @@ class DatabaseConnectionService
 {
 
     /**
+     * @Flow\InjectConfiguration(path="supportedDatabaseDrivers")
      * @var array<string, string>
      */
-    protected $supportedDrivers = [
-        'pdo_mysql' => 'MySQL/MariaDB via PDO',
-        'mysqli' => 'MySQL/MariaDB via mysqli',
-        'pdo_pgsql' => 'PostgreSQL via PDO'
-    ];
+    protected $supportedDatabaseDrivers;
 
     /**
      * Return an array with driver.
@@ -32,9 +30,9 @@ class DatabaseConnectionService
     public function getAvailableDrivers()
     {
         $availableDrivers = [];
-        foreach ($this->supportedDrivers as $driver => $label) {
+        foreach ($this->supportedDatabaseDrivers as $driver) {
             if (extension_loaded($driver)) {
-                $availableDrivers[$driver] = $label;
+                $availableDrivers[] = $driver;
             }
         }
 

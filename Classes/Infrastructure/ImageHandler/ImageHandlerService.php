@@ -14,15 +14,16 @@ class ImageHandlerService
 {
 
     /**
-     * Possible values for imageine drivers
+     * @Flow\InjectConfiguration(path="supportedImageHandlers")
      * @var string[]
      */
-    protected $supportedImageHandlers = ['gd', 'gmagick', 'imagick'];
+    protected $supportedImageHandlers;
 
     /**
+     * @Flow\InjectConfiguration(path="requiredImageFormats")
      * @var string[]
      */
-    protected $requiredImageFormats = ['jpg', 'gif', 'png'];
+    protected $requiredImageFormats;
 
     /**
      * @Flow\Inject

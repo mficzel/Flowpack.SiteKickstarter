@@ -167,9 +167,9 @@ class SetupCommandController extends CommandController
     /**
      * Write the settings to the given path, existing configuration files are created or modified
      *
-     * @param string $filename
-     * @param string $path
-     * @param mixed $settings The settings for the
+     * @param string $filename The filename the settings are stored in
+     * @param string $path The configuration path
+     * @param mixed $settings The actual settings to write
      * @return string The added yaml code
      */
     protected function writeSettings(string $filename, string $path, $settings): string
